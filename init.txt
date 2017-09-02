@@ -1,0 +1,407 @@
+# ------------------------ MOJE ZMIANY --------------------------
+# from: Yermak.rc,p0werm0de.rc 
+
+# don't auto-explore over deep water
+# travel_avoid_terrain = deep water
+
+# mini map size, [X] pixels per tile
+tile_map_pixels = 4
+
+default_manual_training = true
+autofight_stop = 60
+
+auto_butcher = true
+auto_eat_chunks = true
+
+show_more = false
+
+hp_warning = 50
+note_hp_percent = 10
+
+show_travel_trail = true
+
+flash_screen_message += distortion
+
+# tile_font_crt_family = Lucida Console 
+# tile_font_stat_family = Lucida Console 
+# tile_font_msg_family = Lucida Console 
+# tile_font_lbl_family = Lucida Console
+
+note_skill_levels = 1,3,6,9,12,15,18,21,24,27
+
+assign_item_slot = backward
+
+autoinscribe ^= potion of mutation:!q
+
+################
+# Message colour
+################
+# tu taka uwaga: ^= oznacza ze dodaje to na POCZATKU (czasami konieczne)
+# .* oznacza dowolny ciag znakow
+# abc? - znak zapytania oznacza ze moze to byc= "ab" "abc"
+msgc := message_colour
+msgc += green:Found
+
+
+msgc += yellow:comes? into view
+
+msgc += white:Reactivating autopickup
+msgc += white:your rage grows
+
+msgc += lightgrey:accepts your kill
+msgc += lightgrey:your killing of a magic user
+msgc += lightgrey:You kill the
+msgc += lightgrey:You destroy the
+msgc ^= lightgrey:hits you but does no damage
+msgc ^= lightgrey:misses you
+
+msgc += darkgrey:is almost (dead|destroyed)
+msgc += darkgrey:The .* is (lightly|severely|moderately|heavily) (wounded|damaged)
+
+# KOLORY
+# black, blue, green, cyan, red, magenta, brown, yellow, white
+# lightgrey, darkgrey, lightblue, lightgreen, lightcyan, lightred, lightmagenta
+               
+
+msgc += magenta:sizzling sound
+# msgc ^= red:you shout at
+# msgc += mute:You feel a little less hungry.
+# message_colour += mute:(HP|Magic) restored
+
+
+################
+# Auto Exclude 
+################
+auto_exclude += rat, bat
+
+# auto_exclude += ancient lich, death drake, hydra, ice statue, jelly, orb of fire
+# auto_exclude += [^c] wizard, ancient lich, Ereshkigal, Erolcha, eyeball, Grinder, Jory, lich
+# auto_exclude += Norris, ogre-mage, orb of eyes, orc sorcerer, Rupert, sphinx, vampire knight
+# auto_exclude += Agnes, Aizul, Arachne, Asterion, Blork, Boris, Crazy Yiuf, Donald, Dowan
+# auto_exclude += Duvessa, Edmund, Erica, Eustachio, Fannar, Frances, Frederick, Gastronok
+# auto_exclude += Grum, Harold, Ijyb, Jessica, Jorgrun, Joseph, Kirke, Louise, Mara, Maud
+# auto_exclude += Maurice, Menkaure, Mennas, Natasha, Nergalle, Nessos, Nikola, Pikel
+# auto_exclude += Polyphemus, Prince Ribbit, Psyche, Roxanne, Saint Roka, Sigmund, Snorg
+# auto_exclude += Sojobo, Sonja, Terence, Urug, Wiglaf, Xtahua, hog, slave
+
+
+ae := autopickup_exceptions
+
+ae -= dangerous_item
+ae += >scrolls? of (amn|vuln|noise)
+ae += >potions? of ligni
+ae += >wand of (dis|flame|poly|conf|rand|slow)
+ae += >ring of (protection from (mag|fire|cold)|mag|stealth|ice|fire|pos|wiz)
+ae += <potions? of mutation
+ae += <scrolls? of immolation
+ae += <throwing net
+ae += <(lamp of fire|phial of floods)
+ae += <sack of spiders
+ae += <phantom mirror
+ae += <box of beasts
+ae += <deck
+ae += <assassin
+
+: if you.god() == "Trog" then
+ae += >potions? of brilliance
+ae += >potions? of berserk
+: end
+
+: if you.god() == "Fedhas" then
+autoinscribe += fruit:!e
+: end
+
+
+# -------------------------- FORCE_MORE_MESSAGE ------------------------------
+# force "more" when these happen
+
+fmg := force_more_message
+
+# stworzenia ktore uwazam za MOCNE
+fmg += (grinder).*into view
+
+# dangerous monsters in sight
+# corrupters, temporary or permanent
+fmg += (giant eyeball|shining eye|cacodemon|neqoxec|corrupter|wretched star).*into view
+
+# tormentors
+fmg += (curse toe|curse skull|fiend|tzitzimitl|tormentor|mummy priest|greater mummy).*into view
+
+# damnators
+fmg += (deep elf high priest|deep elf sorcerer|draconian scorcher|draconian zealot|hell sentinel|hellion).*into view
+
+# summoners and displacers
+fmg += (deep elf demonologist|doom hound|draconian shifter|guardian serpent|ironbrand convoker|shadow demon).*into view
+
+# just plain strong
+fmg += (ancient lich|caustic shrike|iron giant|juggernaut|orb of fire).*into view
+
+# nasty statuses
+fmg += (ancient zyme|death cob|death drake|entropy weaver|flayed ghost|ghost moth|moth of wrath|starcursed mass|vault warden|warmonger).*into view
+
+# uniques or pan lords, also Killer Klown, Orb Guardian and some others
+fmg += (?-i:[A-Z]).* comes? into view
+
+# distortion weapons
+fmg += Space warps horribly around you
+fmg += Space bends around you
+fmg += hits you.*distortion
+fmg += warns you.*of distortion
+fmg += is wielding.*of distortion
+
+# invisible ghost moth
+fmg += watched by something
+
+# hit by Airstrike while flying
+fmg += The air twists around and violently strikes you in flight
+
+# ironbrand convoker's delayed summon
+fmg += begins to recite a word of recall
+
+# teleported onto exact same tile
+fmg += Your surroundings flicker
+
+# manual gone
+fmg += You have finished your manual
+
+# transmutation spell starts to run out
+fmg += Your transformation is almost over
+
+# ---- bad mutations! (some will have the same text for multiple levels)
+# berserk
+fmg += You feel a little pissed off
+fmg += You feel angry
+fmg += You feel extremely angry at everything!
+
+# blurry vision
+fmg += Your vision blurs
+
+# teleportitis
+fmg += You feel weirdly uncertain
+fmg += You feel even more weirdly uncertain
+
+# deformed body
+fmg += Your body twists and deforms
+
+# frail
+fmg += You feel frail
+
+# --spell power +wiz
+fmg += Your connection to magic feels subdued
+fmg += Your connection to magic feels more subdued
+fmg += Your connection to magic feels nearly dormant
+
+# -wiz ++spell power
+fmg += You feel less in control of your magic
+fmg += You feel your magical power running wild
+
+# no device heal (only lvl 2-3)
+fmg += Your system mostly rejects artificial healing
+fmg += Your system completely rejects artificial healing
+
+# low regen (only lvl 3)
+fmg += You stop regenerating
+
+# ----- end bad mutations --------------------------
+
+fmg += Your .* skill increases to level
+fmg += wielding .* draining
+fmg += You feel drained.
+fmg += You feel strangely unstable
+
+fmg += the .* comes? into view
+fmg += 's ghost.* comes? into view
+
+fmg += Found a gateway leading out of the Abyss
+fmg += Found a gateway leading deeper into the Abyss
+fmg += Found .* rune of Zot
+fmg += Careful!
+
+
+fmg += Found a gate leading to another region of Pandemonium
+fmg += You found a shaft
+
+
+runrest_stop_message += You found a shaft
+
+
+flash_screen_message += You are slowing down
+
+# to ma zapisac w logu (tym po grze)?
+note_messages += [bB]anish.*Abyss
+
+
+
+# ------------------ CONSTANT ABILITY AND SPELL SLOTS ---------
+as := ability_slot
+is := item_slot
+ss := spell_slot
+
+ss ^= Regeneration:d
+ss ^= Summon Lightning Spire:e
+
+# ------------ to tylko przy grze online przez strone 
+
+# aby widziec plynny ruch
+explore_delay = -1
+travel_delay = 10
+
+#travel_delay = -1
+#explore_delay = -1
+#rest_delay = -1
+
+
+# --------------------- Funkcja obliczajaca DMG
+: local dmg_old_hp = 0
+: local max_dmg = 0
+ 
+<
+  function ready()
+    DmgTrack()
+  end
+>
+ 
+: local dmg_old_hp = 0
+:  
+: function DmgTrack()
+:   local bot_hp, bot_mhp = you.hp()
+:   local dmg_inturn = 0
+:   local msg
+:
+:   if dmg_old_hp > 0 then
+:     dmg_inturn = dmg_old_hp - bot_hp
+:     if bot_hp < dmg_old_hp then
+:       if dmg_inturn > max_dmg then
+:         max_dmg = dmg_inturn
+:       end
+:       msg = string.format("Damage: %d (max %d)", dmg_inturn, max_dmg)
+:       crawl.mpr("<yellow>" .. msg .. "</yellow>")
+:     end
+:   end
+:   dmg_old_hp = bot_hp
+:   if you.feel_safe() then
+:     max_dmg = 0
+:   end
+: end
+# --------------------- KONIEC MOJE ZMIANY -----------------
+
+
+
+
+
+--[=====[
+
+
+# lista kolorów w grze !
+
+    Grey : is default color
+    Dark Grey : is useless or unusable
+    White : is an artefact
+    Blue : has a(n) (un)confirmed ego
+    Green : has an unidentified enchantment, but no ego
+    Red : is cursed or harmful or discouraged by religion
+    Bright Green : is uncursed and equipped
+    Bright Red : is cursed and equipped
+    Yellow : has use as a utility
+    Cyan / Light Blue : is beneficial to use
+    Magenta / Purple : is dangerous to use
+    Light Magenta / Purple : is Rune or Orb of Zot
+
+Light (color) : can memorize or cast at this time
+Dark (color) : cannot memorize or cast at this time
+
+--]=====]
+
+
+
+
+
+
+
+
+
+##### Crawl Init file ###############################################
+# For descriptions of all options, as well as some more in-depth information
+# on setting them, consult the file
+#    options_guide.txt
+# in your /docs directory. If you can't find it, the file is also available
+# online at:
+# https://github.com/crawl/crawl/blob/master/crawl-ref/docs/options_guide.txt
+#
+# Crawl uses the first file of the following list as its option file:
+#  * init.txt in the -rcdir directory (if specified)
+#  * .crawlrc in the -rcdir directory (if specified)
+#  * init.txt (in the Crawl directory)
+#  * ~/.crawl/init.txt (Unix only)
+#  * ~/.crawlrc (Unix only)
+#  * ~/init.txt (Unix only)
+#  * settings/init.txt (in the Crawl directory)
+
+##### Some basic explanation of option syntax #######################
+# Lines beginning with '#' are comments. The basic syntax is:
+#
+# field = value         or      field.subfield = value
+#
+# Only one specification is allowed per line.
+#
+# The terms are typically case-insensitive except in the fairly obvious
+# cases (the character's name and specifying files or directories when
+# on a system that has case-sensitive filenames).
+#
+# White space is stripped from the beginning and end of the line, as
+# well as immediately before and after the '='. If the option allows
+# multiple comma/semicolon-separated terms (such as
+# autopickup_exceptions), all whitespace around the separator is also
+# trimmed. All other whitespace is left intact.
+#
+# There are three broad types of Crawl options: true/false values (booleans),
+# arbitrary values, and lists of values. The first two types use only the
+# simple =, with later options - which includes your options that are different
+# from the defaults - overriding earlier ones. List options allow using +=, ^=,
+# -=, and = to append, prepend, remove, and reset, respectively. Usually you will
+# want to use += to add to a list option. Lastly, there is := which you can use
+# to create an alias, like so:
+#   ae := autopickup_exceptions
+# From there on, 'ae' will be treated as if it you typed autopickup_exceptions,
+# so you can save time typing it.
+#
+
+##### Other files ###################################################
+# You can include other files from your options file using the 'include'
+# option. Crawl will treat it as if you copied the whole text of that file
+# into your options file in that spot. You can uncomment some of the following
+# lines by removing the beginning '#' to include some of the other files in
+# this folder.
+
+# Some useful, more advanced options, implemented in LUA.
+# include = advanced_optioneering.txt
+
+# Alternative vi bindings for Dvorak users.
+# include = dvorak_command_keys.txt
+
+# Alternative vi bindings for Colemak users.
+# include = colemak_command_keys.txt
+
+# Override the vi movement keys with a non-command.
+# include = no_vi_command_keys.txt
+
+# Turn the shift-vi keys into safe move, instead of run.
+# include = safe_move_shift.txt
+
+##### Ancient versions ##############################################
+# If you're used to the interface of ancient versions of Crawl, you may
+# get back parts of it by uncommenting the following options:
+
+# include                 = 034_command_keys.txt
+
+# And to revert monster glyph and colouring changes:
+
+# include                 = 052_monster_glyphs.txt
+# include                 = 060_monster_glyphs.txt
+# include                 = 071_monster_glyphs.txt
+# include                 = 080_monster_glyphs.txt
+# include                 = 0.9_monster_glyphs.txt
+# include                 = 0.12_monster_glyphs.txt
+# include                 = 0.13_monster_glyphs.txt
+# include                 = 0.14_monster_glyphs.txt
+
