@@ -1,0 +1,10 @@
+
+httrack http://crawl.chaosforge.org/Crawl_Wiki -F "mozilla" "-*:UserLogin*" "-*ExportRDF*" "-*=history*" "-*=edit*" "-*=Talk*" "-*talk:*" "-*Talk:*" "-*diff=*" "-*Special:*" "-*=Special*" "-*=info*" "-*File:*" "-*printable=yes*" "-*title=*" "-*Template:*" -C0 -%c4 -R4 -v
+
+
+
+
+
+7za a -m0=LZMA2 -mx=7 -mhe=on -pHASLO DCSS_wki_httrack_020_n.7z ./DCSS_wiki_httrack/
+
+

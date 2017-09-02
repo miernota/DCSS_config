@@ -1,0 +1,3142 @@
+https://github.com/crawl/crawl/blob/master/crawl-ref/docs/options_guide.txt
+
+#############
+# Autofight #
+#############
+
+autofight_fire_stop = true
+autofight_stop = 60
+automagic_enable = false
+automagic_slot = a
+automagic_stop = 50
+automagic_fight = true
+
+note_chat_messages=true
+dump_message_count = 100
+
+###########
+#INTERFASE#
+###########
+
+tile_font_crt_family  = Lucida Console
+tile_font_stat_family = Lucida Console
+tile_font_msg_family  = Lucida Console
+tile_font_lbl_family  = Lucida Console
+tile_map_pixels = 4
+
+allow_extended_colours=false
+no_dark_brand=false
+bold_brightens_foreground=true
+blink_brightens_background=false
+best_effort_brighten_background=false
+
+display_char = wall:x2588, floor x2022
+display_char = floor_magic : xb7, door_closed : x25b2
+display_char = door_open : x2206, wall_magic : x2593, arch : x2229
+display_char = grate : x2261, tree : x2663, altar : x2302, fountain : x03a8
+display_char = rune : x03c6
+
+##########
+# Travel #
+##########
+
+show_travel_trail = false
+travel_delay = 5
+explore_delay = 5
+view_delay = 300
+allow_self_target = no
+show_uncursed = false
+easy_confirm = all
+confirm_butcher = never
+sort_menus = true : equipped, identified, basename, qualname, curse, qty
+autofight_throw_nomove = true
+autofight_caught = true
+autofight_wait = true
+rest_wait_both = true
+explore_auto_rest = true
+auto_switch = false
+allow_self_target = no
+
+explore_stop = greedy_pickup
+explore_stop += stairs,shops,altars,gates
+explore_stop += greedy_sacrificeable
+
+runrest_ignore_poison = 2:10
+show_travel_trail = true
+
+hp_colour = 100:green, 75:yellow, 50:red, 25:lightred
+mp_colour = 100:green, 75:yellow, 50:red, 25:lightred
+allow_self_target = prompt
+sort_menus = true
+easy_confirm = all
+confirm_butcher = never
+easy_eat_contaminated = true
+equip_unequip = true
+confirm_buther = never
+default_manual_training = true
+dump_order += vaults
+auto_butcher = true
+easy_eat_chunks = true
+auto_eat_chunks = true
+
+show_god_gift = yes
+assign_item_slot = backward
+cloud_status = true
+pickup_mode = multi
+stat_colour = 7:red, 3:lightred
+skill_fokus = true
+hp_warning = 45
+auto_sacrifice=true
+interrupt_memorise -= hp_loss
+
+################
+# Auto Exclude #
+################
+
+auto_exclude += ancient lich, death drake, hydra, ice statue, jelly, orb of fire
+auto_exclude += [^c] wizard, ancient lich, Ereshkigal, Erolcha, eyeball, Grinder, Jory, lich
+auto_exclude += Norris, ogre-mage, orb of eyes, orc sorcerer, Rupert, sphinx, vampire knight
+auto_exclude += Agnes, Aizul, Arachne, Asterion, Blork, Boris, Crazy Yiuf, Donald, Dowan
+auto_exclude += Duvessa, Edmund, Erica, Eustachio, Fannar, Frances, Frederick, Gastronok
+auto_exclude += Grum, Harold, Ijyb, Jessica, Jorgrun, Joseph, Kirke, Louise, Mara, Maud
+auto_exclude += Maurice, Menkaure, Mennas, Natasha, Nergalle, Nessos, Nikola, Pikel
+auto_exclude += Polyphemus, Prince Ribbit, Psyche, Roxanne, Saint Roka, Sigmund, Snorg
+auto_exclude += Sojobo, Sonja, Terence, Urug, Wiglaf, Xtahua, hog, slave
+
+################################################
+#DAMGE CALC, FORCE MORE, AUTOSTART "M" FUNCTION#
+################################################
+
+<
+last_turn = you.turns()
+
+-- Conditions are in the fm_patterns array. For now only one condition
+-- per monster is allowed until (if) I get better at lua to modify
+-- the script further. Each array entry works as follows:
+-- pattern = monster name
+-- cond = attribute to check; behaviour is defined later on
+-- cutoff = if attribute's value is equal or higher, don't force more for these
+-- name = an identifier for the entry in the array
+
+fm_patterns = {
+  -- early threats
+  {pattern = "adder|gnoll", cond = "xl", cutoff = 5, name = "XL5"},
+  -- early poisonous threats
+  -- {pattern = "worker ant|scorpion", cond = "xl", cutoff = 7, name = "XL7"),
+  -- the frog of doom and a merry lizard
+  {pattern = "spiny frog|komodo dragon", cond = "xl", cutoff = 12, name = "XL12"},
+  -- biggest lair threats
+  {pattern = "death yak|dire elephant|black mamba|wolf spider|hydra", cond = "xl", cutoff = 15, name = "XL15"},
+  -- biggest orc threat
+  {pattern = "orc warlord", cond = "xl", cutoff = 17, name = "XL17"},
+  -- no rF
+  {pattern = "fire giant|balrug", cond = "rf", cutoff = 1, name = "rF1"},
+  -- no rC
+  {pattern = "ice giant|white draconian|blizzard demon|azure jelly", cond = "rc", cutoff = 1, name = "rC1"},
+  -- no rElec
+  {pattern = "spark wasp|titan", cond = "relec", cutoff = 1, name = "rE1"},
+  -- no rPois
+  {pattern = "swamp drake|swamp dragon|green draconian|golden dragon|green death", cond = "rpois", cutoff = 1, name = "rP1"},
+  -- no rCorr (boolean)
+  {pattern = "acid dragon|rust devil|acid blob", cond = "rcorr", cutoff = 999, name = "rA1"},
+  -- low MR (MR not directly exposed to clua yet)
+  -- {pattern = "basilisk|deep elf archer|bog body|faun|ogre mag", cond = "mr", cutoff = 40, name = "MR1"},
+  -- {pattern = "orc sorcerer|siren|satyr|great orb of eyes", cond = "mr", cutoff = 80, name = "MR2"},
+  -- {pattern = "merfolk avatar|vault sentinel|vampire knight|golden eye|wizard|sphinx", cond = "mr", cutoff = 120, name = "MR3"},
+  -- no rN
+  {pattern = "deep elf death mag|eidolon", cond = "rn", cutoff = 1, name = "rN1"},
+  -- airstrike (boolean)
+  {pattern = "wind drake|spriggan air mag", cond = "fly", cutoff = 999, name = "fly"},
+  -- HP
+  {pattern = "annihilator", cond = "mhp", cutoff = 120, name = "HP3"}
+} -- end fm_patterns
+
+active_fm = {}
+-- Set to true to get a message when the fm change
+notify_fm = false
+
+function init_force_mores()
+  for i,v in ipairs(fm_patterns) do
+    active_fm[#active_fm + 1] = false
+  end
+end
+
+function update_force_mores()
+  local activated = {}
+  local deactivated = {}
+  local hp, maxhp = you.hp()
+  for i,v in ipairs(fm_patterns) do
+    local msg = "(" .. v.pattern .. ").*into view"
+    local action = nil
+    local fm_name = v.pattern
+    if v.name then
+      fm_name = v.name
+    end
+    if not v.cond and not active_fm[i] then
+      action = "+"
+    elseif v.cond == "xl" then
+      if active_fm[i] and you.xl() >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and you.xl() < v.cutoff then
+        action = "+"
+      end
+    elseif v.cond == "rf" then
+      if active_fm[i] and you.res_fire() >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and you.res_fire() < v.cutoff then
+        action = "+"
+      end
+    elseif v.cond == "rc" then
+      if active_fm[i] and you.res_cold() >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and you.res_cold() < v.cutoff then
+        action = "+"
+      end
+    elseif v.cond == "relec" then
+      if active_fm[i] and you.res_shock() >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and you.res_shock() < v.cutoff then
+        action = "+"
+      end
+    elseif v.cond == "rpois" then
+      if active_fm[i] and you.res_poison() >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and you.res_poison() < v.cutoff then
+        action = "+"
+      end
+    elseif v.cond == "rcorr" then
+      if active_fm[i] and you.res_corr() then
+        action = "-"
+      elseif not active_fm[i] and not you.res_corr() then
+        action = "+"
+      end
+    elseif v.cond == "rn" then
+      if active_fm[i] and you.res_draining() >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and you.res_draining() < v.cutoff then
+        action = "+"
+      end
+    elseif v.cond == "fly" then
+      if active_fm[i] and not you.flying() then
+        action = "-"
+      elseif not active_fm[i] and you.flying() then
+        action = "+"
+      end
+    elseif v.cond == "mhp" then
+      if active_fm[i] and maxhp >= v.cutoff then
+        action = "-"
+      elseif not active_fm[i] and maxhp < v.cutoff then
+        action = "+"
+      end
+    end
+    if action == "+" then
+      activated[#activated + 1] = fm_name
+    elseif action == "-" then
+      deactivated[#deactivated + 1] = fm_name
+    end
+    if action ~= nil then
+      local opt = "force_more_message " .. action .. "= " .. msg
+      crawl.setopt(opt)
+      active_fm[i] = not active_fm[i]
+    end
+  end
+  if #activated > 0 and notify_fm then
+    mpr("Activating force_mores: " .. table.concat(activated, ", "))
+  end
+  if #deactivated > 0 and notify_fm then
+    mpr("Deactivating force_mores: " .. table.concat(deactivated, ", "))
+  end
+end
+
+local last_turn = nil
+function force_mores()
+  if last_turn ~= you.turns() then
+    update_force_mores()
+    last_turn = you.turns()
+  end
+end
+
+init_force_mores()
+
+-- ------------- MANUAL EXPLORATION TOGGLE ---------------- --
+
+function toggle_manual_exploration()
+  if (c_persist.force_more_on_new_enemy_sight == nil) then
+    c_persist.force_more_on_new_enemy_sight = false
+  end
+  c_persist.force_more_on_new_enemy_sight = not c_persist.force_more_on_new_enemy_sight
+  if (c_persist.force_more_on_new_enemy_sight) then
+    crawl.setopt("force_more_message += comes? into view")
+    crawl.mpr("<white>Manual exploration ON.</white>")
+  else
+    crawl.setopt("force_more_message -= comes? into view")
+    crawl.mpr("<white>Manual exploration OFF.</white>")
+  end
+end
+
+
+need_skills_opened = true
+  function ready()
+    if you.turns() == 0 and need_skills_opened then
+    need_skills_opened = false
+    crawl.sendkeys("m")
+  end
+    AnnounceDamage()
+    force_mores()
+  end
+>
+
+###############
+# Damage Calc #
+###############
+<
+  local previous_hp = 0
+  local previous_mp = 0
+  local previous_form = ""
+  local was_berserk_last_turn = false
+
+  function AnnounceDamage()
+    local current_hp, max_hp = you.hp()
+    local current_mp, max_mp = you.mp()
+    --Things that increase hp/mp temporarily really mess with this
+    local current_form = you.transform()
+    local you_are_berserk = you.berserk()
+    local max_hp_increased = false
+    local max_hp_decreased = false
+
+    if (current_form ~= previous_form) then
+      if (previous_form:find("dragon") or
+          previous_form:find("statue") or
+          previous_form:find("tree") or
+          previous_form:find("ice")) then
+        max_hp_decreased = true
+      elseif (current_form:find("dragon") or
+          current_form:find("statue") or
+          current_form:find("tree") or
+          current_form:find("ice")) then
+        max_hp_increased = true
+      end
+    end
+    if (was_berserk_last_turn and not you_are_berserk) then
+      max_hp_decreased = true
+    elseif (you_are_berserk and not was_berserk_last_turn) then
+      max_hp_increased = true
+    end
+
+    --crawl.mpr(string.format("previous_form is: %s", previous_form))
+    --crawl.mpr(string.format("current_form is: %s", current_form))
+    --crawl.mpr(string.format("max_hp_increased is: %s", max_hp_increased and "True" or "False"))
+    --crawl.mpr(string.format("max_hp_decreased is: %s", max_hp_decreased and "True" or "False"))
+
+    --crawl.mpr(string:format("you_are_berserk is: %s", you_are_berserk and "True" or "False"))
+    --crawl.mpr(string:format("was_berserk_last_turn is: %s", was_berserk_last_turn and "True" or "False"))
+
+
+    --Skips message on initializing game
+    if previous_hp > 0 then
+      local hp_difference = previous_hp - current_hp
+      local mp_difference = previous_mp - current_mp
+
+      if max_hp_increased or max_hp_decreased then
+        if max_hp_increased then
+          crawl.mpr("<green>You now have " .. current_hp .. "/" .. max_hp .. " hp.</green>")
+        else
+          crawl.mpr("<yellow>You now have " .. current_hp .. "/" .. max_hp .. " hp.</yellow>")
+        end
+      else
+        --On losing health
+        if (current_hp < previous_hp) then
+          if current_hp <= (max_hp * 0.30) then
+            crawl.mpr("<red>You take " .. hp_difference .. " damage,</red><lightred> and have " .. current_hp .. "/" .. max_hp .. " hp.</lightred>")
+          elseif current_hp <= (max_hp * 0.50) then
+            crawl.mpr("<red>You take " .. hp_difference .. " damage, and have " .. current_hp .. "/" .. max_hp .. " hp.</red>")
+          elseif current_hp <= (max_hp *  0.70) then
+            crawl.mpr("<red>You take " .. hp_difference .. " damage,</red><yellow> and have " .. current_hp .. "/" .. max_hp .. " hp.</yellow>")
+          elseif current_hp <= (max_hp * 0.90) then
+            crawl.mpr("<red>You take " .. hp_difference .. " damage,</red><lightgrey> and have " .. current_hp .. "/" .. max_hp .. " hp.</lightgrey>")
+          else
+            crawl.mpr("<red>You take " .. hp_difference .. " damage,</red><green> and have " .. current_hp .. "/" .. max_hp .. " hp.</green>")
+          end
+          if hp_difference > (max_hp * 0.20) then
+            crawl.mpr("<lightred>MASSIVE DAMAGE!!</lightred>")
+          end
+        end
+
+        --On gaining more than 1 health
+        if (current_hp > previous_hp) then
+          --Removes the negative sign
+          local health_inturn = (0 - hp_difference)
+          if (health_inturn > 1) and not (current_hp == max_hp) then
+            if current_hp <= (max_hp * 0.30) then
+              crawl.mpr("<green>You regained " .. health_inturn .. " hp,</green><lightred> and now have " .. current_hp .. "/" .. max_hp .. " hp.</lightred>")
+            elseif current_hp <= (max_hp * 0.50) then
+              crawl.mpr("<green>You regained " .. health_inturn .. " hp,</green><red> and now have " .. current_hp .. "/" .. max_hp .. " hp.</red>")
+            elseif current_hp <= (max_hp *  0.70) then
+              crawl.mpr("<green>You regained " .. health_inturn .. " hp,</green><yellow> and now have " .. current_hp .. "/" .. max_hp .. " hp.</yellow>")
+            elseif current_hp <= (max_hp * 0.90) then
+              crawl.mpr("<green>You regained " .. health_inturn .. " hp,</green><lightgrey> and now have " .. current_hp .. "/" .. max_hp .. " hp.</lightgrey>")
+            else
+              crawl.mpr("<green>You regained " .. health_inturn .. " hp, and now have " .. current_hp .. "/" .. max_hp .. " hp.</green>")
+            end
+          end
+          if (current_hp == max_hp) then
+            crawl.mpr("<green>Health restored: " .. current_hp .. "</green>")
+          end
+        end
+
+        --On gaining more than 1 magic
+        if (current_mp > previous_mp) then
+          --Removes the negative sign
+          local mp_inturn = (0 - mp_difference)
+          if (mp_inturn > 1) and not (current_mp == max_mp) then
+            if current_mp < (max_mp * 0.25) then
+              crawl.mpr("<lightcyan>You regained " .. mp_inturn .. " mp,</lightcyan><red> and now have " .. current_mp .. "/" .. max_mp .. " mp.</red>")
+            elseif current_mp < (max_mp * 0.50) then
+              crawl.mpr("<lightcyan>You regained " .. mp_inturn .. " mp,</lightcyan><yellow> and now have " .. current_mp .. "/" .. max_mp .. " mp.</yellow>")
+            else
+              crawl.mpr("<lightcyan>You regained " .. mp_inturn .. " mp,</lightcyan><green> and now have " .. current_mp .. "/" .. max_mp .. " mp.</green>")
+            end
+          end
+          if (current_mp == max_mp) then
+            crawl.mpr("<lightcyan>MP restored: " .. current_mp .. "</lightcyan>")
+          end
+        end
+
+        --On losing magic
+        if current_mp < previous_mp then
+          if current_mp <= (max_mp / 5) then
+            crawl.mpr("<lightcyan>You now have </lightcyan><red>" .. current_mp .. "/" ..max_mp .." mp.</red>")
+          elseif current_mp <= (max_mp / 2) then
+            crawl.mpr("<lightcyan>You now have </lightcyan><yellow>" .. current_mp .. "/" ..max_mp .." mp.</yellow>")
+          else
+            crawl.mpr("<lightcyan>You now have </lightcyan><green>" .. current_mp .. "/" ..max_mp .." mp.</green>")
+          end
+        end
+      end
+    end
+
+    --Set previous hp/mp and form at end of turn
+    previous_hp = current_hp
+    previous_mp = current_mp
+    previous_form = current_form
+    was_berserk_last_turn = you_are_berserk
+  end
+>
+
+####################
+#AUTOPIKUP FUNCTION#
+####################
+
+{
+add_autopickup_func(function(it, name)
+  if it.is_useless then
+    return false
+  end
+  
+  if name:find("curare") then return true end
+  if name:find("dispersal") and (name:find("dart") or name:find("tomahawk")) 
+then return true end
+  if name:find("throwing net") then return true end
+ 
+  local class = it.class(true)
+  local armour_slots = {cloak="Cloak", helmet="Helmet", gloves="Gloves", 
+boots="Boots", body="Armour", shield="Shield"}
+
+  if (class == "armour") then
+    sub_type = it.subtype()
+    equipped_item = items.equipped_at(armour_slots[sub_type])
+ 
+    if (sub_type == "cloak") or (sub_type == "helmet") or (sub_type == 
+"gloves") or (sub_type == "boots") then
+      if not equipped_item then
+        return true
+      else
+        return it.artefact or it.branded or it.ego
+      end
+    end
+ 
+    if (sub_type == "body") then
+      if equipped_item then
+        local armourname = equipped_item.name()
+        if equipped_item.artefact or equipped_item.branded or 
+equipped_item.ego or (equipped_item.plus > 2) or armourname:find("dragon") or 
+armourname:find("troll") then
+          return it.artefact
+        else
+          return it.artefact or it.branded or it.ego
+        end
+      end
+      return true
+    end
+ 
+    if (sub_type == "shield") then
+      if equipped_item then
+          return it.artefact or it.branded or it.ego
+      end
+    end
+  end
+ 
+  if (class == "weapon") then
+    if (you.xl() < 12) or (you.god():find("Nemelex")
+                           or (you.god():find("Yred"))
+                           or (you.god():find("Beogh"))) then
+      if it.branded and not (it.name() == "club") then
+        return false
+      end
+    end
+    local weapon = items.equipped_at("Weapon")
+    if weapon then
+      if (weapon.branded or weapon.artefact) then return false
+      else
+        local weapon_name = weapon.name()
+        local sb = you.skill("Short Blades")
+        local lb = you.skill("Long Blades")
+        local axe = you.skill("Axes")
+        local mf = you.skill("Maces & Flails")
+        local pole = you.skill("Polearms")
+        local staff = you.skill("Staves")
+        if sb > 6 then
+          if name:find("quick blade") then return true end
+        end
+        if lb > 8 then
+          if name:find("demon blade") then return true end
+          if name:find("bastard sword") then return true end
+          if name:find("double sword") then return true end
+        end
+        if lb > 14 then
+          if name:find("claymore") then return true end
+          if name:find("triple sword") then return true end
+        end
+        if axe > 8 and mf <= 8 then
+          if name:find("battleaxe") then return true end
+          if name:find("broad axe") then return true end
+          if name:find("war axe") then return true end
+          if name:find("executioner") then return true end
+        end
+        if axe > 18 then
+          if name:find("executioner") then return true end
+        end
+        if mf > 8 and staff <= 8 and axe <= 8 then
+          if name:find("eveningstar") then return true end
+          if name:find("demon whip") then return true end
+          if name:find("sacred scourge") then return true end
+          if name:find("dire flail") then return true end
+        end
+        if mf > 14 and staff <= 14 and axe <= 14 then
+          if name:find("great mace") then return true end
+        end
+        if pole > 8 and staff <= 8 then
+          if name:find("trident") then return true end
+          if name:find("demon trident") then return true end
+          if name:find("trishula") then return true end
+        end
+        if pole > 14 and staff <= 14 then
+          if name:find("glaive") then return true end
+          if name:find("bardiche") then return true end
+        end
+        if staff > 8 then
+          if name:find("lajatang") then return true end
+        end
+      end
+    elseif (you.skill("Unarmed Combat") < 3) then
+      return true
+    end
+  end
+end)
+}
+
+{
+-----------------------------
+---- Begin speedrun_rest ----
+-----------------------------
+
+-- See README.md for documentation.
+
+-- How many turns to rest at max.
+num_rest_turns = 30
+
+-- If true, look for a foot item inventory slot and use fallback_slot if we
+-- can't find a ration. If false, always use fallback_slot.
+automatic_slot = true
+
+-- Slot where you keep your slow swing item.
+fallback_slot = "c"
+
+-- Set to true to have Na characters always walk instead of item swing if
+-- they're able to walk slowly. This is not as turncount efficient for non-Chei
+-- worshipers, but some Na players may prefer it over having to change the
+-- wielded weapon.
+naga_always_walk = false
+
+-- Delay in milliseconds before sending the next walk command. Makes the
+-- visuals a bit less jarring when using walk resting. Set to 0 to disable.
+walk_delay = 50
+
+-- To have the multi-turn rest ignore status change messages, add an entry here
+-- giving the pattern of the message you'd like to ignore. The entries below
+-- cover the transition messages from the regen spell, Trog's hand, and poison
+-- status. The key should be the status that's seen in the output of
+-- `you.status()` when the status is active, and the value should be a single
+-- pattern string or an array of pattern strings matching the message you'd
+-- like to ignore. See the lua string library manual for details on making
+-- patterns.
+status_messages = {
+  ["poisoned"] = {"You feel[^%.]+sick%.",
+                  "You are no longer poisoned%."},
+  ["regenerating"] = {"You feel the effects of Trog's Hand fading%.",
+                      "Your skin is crawling a little less now%."}
+} --end status_messages
+
+-- Like status_messages above, but for arbitrary messages. Any message matching
+-- one of these patterns is ignored.
+ignore_messages = {
+  --RandomTiles messages
+  "Trog roars: Now[^!]+!+",
+  "Sif Muna whispers: Become[^!]+!+",
+  "[^:]+ says: Become[^!]+!+",
+  --Debug messages
+  "Dbg:.*",
+} -- end ignore_messages
+
+-- NOTE: No configuration past this point.
+
+ATT_NEUTRAL = 1
+
+version = 0.15
+if crawl.version then
+  version = tonumber(crawl.version("major"))
+end
+los_range = version >= 0.17 and 7 or 8
+
+-- Wrapper of crawl.mpr() that prints text in white by default.
+if not mpr then
+  mpr = function (msg, color)
+    if not color then
+      color = "white"
+    end
+    crawl.mpr("<" .. color .. ">" .. msg .. "</" .. color .. ">")
+  end
+end
+
+function control(c)
+  return string.char(string.byte(c) - string.byte('a') + 1)
+end
+
+function delta_to_vi(dx, dy)
+  local d2v = {
+    [-1] = { [-1] = 'y', [0] = 'h', [1] = 'b'},
+    [0]  = { [-1] = 'k',            [1] = 'j'},
+    [1]  = { [-1] = 'u', [0] = 'l', [1] = 'n'},
+  } -- hack
+  return d2v[dx][dy]
+end
+
+function reset_rest()
+  if not rstate then
+    rstate = { }
+    rstate.set_slot = false
+    rstate.dir_x = nil
+    rstate.dir_y = nil
+  end
+  rstate.last_acted = nil
+  rstate.wielding = false
+  rstate.resting = false
+  rstate.num_turns = nil
+  rstate.rest_start = nil
+  rstate.start_hp = nil
+  rstate.start_status = { }
+  rstate.start_message = nil
+end
+
+function abort_rest(msg)
+  if msg then
+    mpr(msg, "lightred")
+  end
+  reset_rest()
+end
+
+function crawl_message(i)
+  local msg = crawl.messages(i):gsub("\n", "")
+  msg = msg:gsub("^%c* *", "")
+  msg = msg:gsub(" *%c*?$", "")
+  return msg
+end
+
+function record_status()
+  -- Record starting status to track any status changes.
+  rstate.start_status = { }
+  local status = you.status()
+  for s,_ in pairs(status_messages) do
+    if status:find(s) then
+      rstate.start_status[s] = true
+    end
+  end
+  rstate.start_message = get_last_message()
+end
+
+function in_water()
+  return view.feature_at(0, 0):find("water") and not you.status("flying")
+end
+
+function get_last_message()
+  local rest_type = get_rest_type()
+  local in_water = in_water()
+  -- Ignore these movement messages when walking.
+  local move_patterns = {"There is a[^%.]+here.",
+                         "Things that are here:.*",
+                         "Items here:.*"}
+  for i = 1,200 do
+    local msg = crawl_message(i)
+    for s,_ in pairs(rstate.start_status) do
+      if type(status_messages[s]) == "table" then
+        for _,p in ipairs(status_messages[s]) do
+          msg = msg:gsub(p, "")
+        end
+      else
+        msg = msg:gsub(status_messages[s], "")
+      end
+    end
+    if rest_type == "walk" then
+      for _,p in ipairs(move_patterns) do
+        -- Also remove any whitespace.
+        msg = msg:gsub(" *" .. p .. " *", "")
+      end
+    end
+    msg = msg:gsub(" *Beep! [^%.]+%. *", "")
+    for _,p in ipairs(ignore_messages) do
+      msg = msg:gsub(p, "")
+    end
+    if msg ~= "" then
+      return msg
+    end
+  end
+  return nil
+end
+
+function wield_swing_item()
+  rstate.wielding = true
+  rstate.last_acted = you.turns()
+  record_status()
+  crawl.sendkeys("w*" .. c_persist.swing_slot)
+end
+
+function find_swing_slot()
+  rstate.set_slot = true
+  if not automatic_slot then
+    c_persist.swing_slot = fallback_slot
+    return
+  end
+  c_persist.swing_slot = nil
+  for _,item in ipairs(items.inventory()) do
+    if item.class() == "Comestibles"
+      or item.class() == "Books"
+      or item.class() == "Wands"
+      or item.class() == "Missiles"
+      or item.class() == "Miscellaneous"
+      or (item.class() == "Hand Weapons"
+            and (item.subtype():find("bow")
+                 or item.subtype():find("sling")
+                 or item.subtype():find("crossbow")
+                 or item.subtype():find("blowgun"))) then
+        c_persist.swing_slot = items.index_to_letter(item.slot)
+        break
+    end
+  end
+  if not c_persist.swing_slot then
+    c_persist.swing_slot = fallback_slot
+  end
+end
+
+function swing_item_wielded()
+  local weapon = items.equipped_at("Weapon")
+  return weapon
+    and c_persist.swing_slot ~= nil
+    and weapon.slot == items.letter_to_index(c_persist.swing_slot)
+end
+
+function hostile_in_los()
+  local have_t1 = false
+  for x = -los_range,los_range do
+    for y = -los_range,los_range do
+      m = monster.get_monster_at(x, y)
+      if m and not m:is_safe() then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+function ponderous_level()
+  local level = 0
+  for _,item in ipairs(items.inventory()) do
+    local ego = item.ego()
+    if item.equipped and ego == "ponderousness" then
+      level = level + 1
+    end
+  end
+  return level
+end
+
+-- XXX See if we can move at least some of this into clua, since it's
+-- recreating play_movement_speed() and player_speed(). The aim is to determine
+-- if slow move is more regen-efficient and that the saving is worth the
+-- hassle, this calculates the minimum move speed, which can normally vary at
+-- random from randomized delay (e.g. water) and the many uses of
+-- div_rand_round().
+function player_move_speed()
+  if you.transform() == "tree" then
+    return 0
+  end
+
+  local in_water = in_water()
+  local walk_water = you.race() == "Merfolk"
+    or you.race() == "Octopode"
+    or you.race() == "Barachi"
+    or you.god() == "Beogh" and you.piety_rank() == 5
+    or you.transform == "ice"
+
+  -- This is player action speed, based on things that affect all actions.
+  local player_speed = 10
+  if you.status("slowed") then
+    player_speed = math.floor(player_speed * 3 / 2)
+  end
+  if you.status("berserking") and you.god() ~= "Cheibriados"
+  or  you.status("hasted") then
+    player_speed = math.floor(player_speed * 2 / 3)
+  end
+  if you.transform() == "statue" or you.status("petrifying") then
+    player_speed = math.floor(player_speed * 3 / 2)
+  end
+  if in_water and not walk_water then
+    player_speed = math.floor(player_speed * 13 / 10)
+  end
+
+  -- This is the base player movement speed given all things that affect only
+  -- movement.
+  local move_speed = 10
+  if you.transform() == "bat" then
+    move_speed = 5
+  elseif you.transform() == "pig" then
+    move_speed = 7
+  elseif you.transform() == "porcupine" or you.transform == "wisp" then
+    move_speed = 8
+  elseif in_water and (you.transform() == "hydra"
+                       or you.race() == "Merfolk") then
+    move_speed = 6
+  elseif you.race() == "Tengu" and you.status("flying") then
+    move_speed = 9
+  end
+
+  local boots = items.equipped_at("Boots")
+  local running_level = 0
+  if boots
+    and not boots.is_melded
+    and boots.ego()
+  and boots.ego() == "running" then
+    running_level = 1
+  end
+  move_speed = move_speed - running_level
+  move_speed = move_speed + ponderous_level()
+
+  if you.god() == "Cheibriados" then
+    -- Calculate this based on the minimum piety at the observed rank,
+    -- since we can't know the true piety level.
+    local piety_breaks = { 1, 30, 50, 75, 100, 120, 160 }
+    move_speed = move_speed + 2 +
+      math.floor(math.min(piety_breaks[you.piety_rank() + 1] / 20, 8))
+  end
+
+  if you.status("frozen") then
+    move_speed = move_speed + 4
+  end
+  if you.status("grasped by roots") then
+    move_speed = move_speed + 3
+  end
+
+  local speed_mut = you.mutation("speed")
+  local slow_mut = you.mutation("slowness")
+  if speed_mut > 0 then
+    move_speed = move_speed - speed_mut - 1
+  elseif slow_mut > 0 then
+    move_speed = math.floor(move_speed * (10 +  slow_mut * 2) / 10)
+  end
+
+  if not in_water and you.status("sluggish") then
+    if move_speed >= 8 then
+      move_speed = math.floor(move_speed * 3 / 2)
+    elseif move_speed == 7 then
+      move_speed = math.floor(7 * 6 / 5)
+    end
+  elseif not in_water and you.status("swift") then
+    move_speed = math.floor(move_speed * 3 / 4)
+  end
+  if move_speed < 6 then
+    move_speed = 6
+  end
+  return math.floor(player_speed * move_speed / 10)
+end
+
+function get_rest_type()
+  if you.race() == "Naga" and naga_always_walk
+    or you.god() == "Cheibriados"
+    or (not swing_item_wielded()
+        and not weapon_can_swap()) then
+    return "walk"
+  else
+    return "item"
+  end
+end
+
+function bad_to_act()
+  local hp, mhp = you.hp()
+  local rest_type = get_rest_type()
+  -- Stop multiple turn action when our hp recovers.
+  if rstate.rest_start and rstate.start_hp < mhp and hp == mhp then
+    mpr("HP restored.")
+    reset_rest()
+    return true
+  end
+  if you.status("manticore barbs") then
+    abort_rest("You must remove the manticore barbs first.")
+    return true
+  end
+  if you.hunger_name() == "fainting" or you.hunger_name() == "starving" then
+    abort_rest("You need to eat!")
+    return true
+  end
+  if hostile_in_los() then
+    if not rstate.rest_start then
+      abort_rest("You can't rest with a hostile monster in view!")
+    else
+      abort_rest()
+    end
+    return true
+  end
+
+  -- If any unrecognized message occurs, assume we need to stop resting.
+  if rstate.last_acted then
+    local msg = get_last_message()
+    if not msg then
+      abort_rest("Unable to find a previous message!")
+      return true
+    end
+    local wield_pt = "^ *" .. c_persist.swing_slot .. " - .+[%)}] *$"
+    local swing_pt = "^ *You swing at nothing%. *$"
+    local pattern = rstate.wielding and wield_pt or swing_pt
+    if (rest_type == "item" and not msg:find(pattern))
+    or rest_type == "walk" and msg ~= rstate.start_message then
+      abort_rest()
+      return true
+    end
+  end
+
+  if rest_type == "walk" and player_move_speed() <= 10 then
+    abort_rest("You cannot walk slowly right now!")
+    return true
+  end
+  return false
+end
+
+function feat_is_open(feat)
+  local fname = feat:lower()
+  -- Unique substrings that identify solid features.
+  local solid_features = {"wall", "grate", "tree", "mangrove",
+                          "endless_lava", "open_sea", "statue", "idol",
+                          "malign_gateway", "sealed_door", "closed_door",
+                          "runed_door", "explore_horizon"}
+
+  for i,p in ipairs(solid_features) do
+    if fname:find(p) then
+      return false
+    end
+  end
+  return true
+end
+
+function safe_walk_pos(x, y)
+  local in_water = in_water()
+  local pos_is_water = view.feature_at(x, y):find("water")
+  -- Don't allow walking out of water if we're in water
+  return (in_water and pos_is_water
+          -- Don't allow walking into water if we're not in it
+            or not in_water and not pos_is_water)
+  -- Require the destination to be safe.
+    and view.is_safe_square(x, y)
+end
+
+function safe_swing_pos(x, y)
+  return not monster.get_monster_at(x, y)
+    and feat_is_open(view.feature_at(x,y))
+end
+
+function safe_direction(x, y)
+  if get_rest_type() == "walk" then
+    return safe_walk_pos(x, y)
+  else
+    return safe_swing_pos(x, y)
+  end
+end
+
+function weapon_can_swap()
+  local weapon = items.equipped_at("Weapon")
+  if not weapon then
+    return true
+  end
+  if weapon.cursed then
+    return false
+  end
+
+  local ego = weapon.ego()
+  -- Some unrands like Plut. sword have no ego.
+  if ego
+    and (ego == "vampirism"
+         or ego == "distortion" and you.god() ~= "Lugonu") then
+      return false
+  end
+
+  if weapon.artefact then
+    local artp = weapon.artprops
+    return not (artp["*Contam"] or artp["*Curse"] or artp["*Drain"])
+  end
+  return true
+end
+
+function get_safe_direction()
+  local have_t1 = false
+  for x = -1,1 do
+    for y = -1,1 do
+      if (x ~= 0 or y ~= 0) and safe_direction(x, y) then
+        return x, y
+      end
+    end
+  end
+  return nil
+end
+
+function do_resting()
+  -- Our first turn of resting.
+  if not rstate.rest_start then
+    record_status()
+    rstate.rest_start = you.turns()
+    rstate.start_hp = you.hp()
+  end
+  rstate.last_acted = you.turns()
+  local rest_type = get_rest_type()
+  if rest_type == "item" then
+    crawl.sendkeys(control(delta_to_vi(rstate.dir_x, rstate.dir_y)))
+  else
+    local cur_x = rstate.dir_x
+    local cur_y = rstate.dir_y
+    -- Save the return direction as our next direction.
+    rstate.dir_x = -rstate.dir_x
+    rstate.dir_y = -rstate.dir_y
+    crawl.sendkeys(delta_to_vi(cur_x, cur_y))
+    crawl.delay(walk_delay)
+  end
+end
+
+function one_turn_rest()
+  rstate.resting = true
+  rstate.num_turns = 1
+end
+
+function start_resting()
+  rstate.resting = true
+  rstate.num_turns = num_rest_turns
+end
+
+function set_swing_slot()
+  crawl.formatted_mpr("Enter an slot letter for the swing item: ", "prompt")
+  local letter = crawl.c_input_line()
+  local index = items.letter_to_index(letter)
+  if not index or index < 0 then
+    mpr("Must be a letter (a-z or A-Z)!", "lightred")
+    return
+  end
+  c_persist.swing_slot = letter
+  rstate.set_slot = true
+  mpr("Set swing slot to " .. letter .. ".")
+end
+
+function speedrun_rest()
+  local rest_type = get_rest_type()
+  if rest_type == "item"
+    and (not c_persist.swing_slot
+         or you.turns() == 0 and not rstate.set_slot) then
+      find_swing_slot()
+  end
+
+  if not rstate.resting then
+    return
+  end
+
+  -- Only act once per turn.
+  if rstate.last_acted == you.turns() then
+    -- An error happened with the 'w' command
+    if rstate.wielding and not swing_item_wielded() then
+      abort_rest("Unable to wield swing item on slot " ..
+                   c_persist.swing_slot .. "!")
+    end
+    return
+  end
+
+  if rstate.last_acted and rstate.rest_start
+  and rstate.last_acted + 1 >= rstate.rest_start + rstate.num_turns then
+    reset_rest()
+    return
+  end
+
+  if bad_to_act() then
+    return
+  end
+
+  if rest_type == "item" and not swing_item_wielded() then
+    wield_swing_item()
+    return
+  end
+
+  rstate.wielding = false
+  if not rstate.dir_x
+  -- Don't try to reuse our position if we were walk resting and did
+  -- something inbetween our last rest.
+    or swing_type == "walk" and rstat.last_acted ~= you.turns() - 1
+  or not safe_direction(rstate.dir_x, rstate.dir_y) then
+    rstate.dir_x, rstate.dir_y = get_safe_direction()
+    if not rstate.dir_x then
+      abort_rest("No safe direction found!")
+      return
+    end
+  end
+  do_resting()
+end
+
+reset_rest()
+
+---------------------------
+---- End speedrun_rest ----
+---------------------------
+
+}
+
+<
+  ---------------------------
+  ---- Begin RandomTiles ----
+  ---------------------------
+
+  -- See README.md for documentation.
+
+  -- RandomTile options
+  -- If you set randtile_options elsewhere in your rc,  we don't override it.
+  if not randtile_options then
+    randtile_options = {
+      -- Change the tile every N turns
+      turns_change = 100,
+
+      -- Which setting for tile_player_tile to use when disabling RandomTiles
+      -- with toggle_random_tile(). Can set to e.g. "normal", "playermons",
+      -- or a fixed mons/tile.
+      disabled_setting = "normal",
+
+      -- If true, print the what tile we're changing to as if it were a
+      -- god message from our current god or the default_god below when we
+      -- have no god. If false, print a more generic message.
+      god_message = true,
+      default_god = "You",
+
+      -- Cute speech string templates. In these %g is replaced with the
+      -- god name, %am with the monster's name with an article, and %m
+      -- with the monster's name without an article.
+      god_speech = {["You"] = "%g become %am!",
+        -- Used when the god has no entry
+        ["default"] = "%g says: Become %am!",
+        ["Sif Muna"] = "%g whispers: Become %am.",
+        ["Trog"] = "%g roars: Now %m!!!",
+        ["Xom"] = "%g titters: I'd like %am!",
+        ["Nemelex Xobeh"] = "%g says: Let's draw a card...%m!"},
+      -- Colour of tile change message.
+      message_colour = "lightblue" }
+  end
+
+  -- player_tiles defines the default array of player tiles from which
+  -- RandomTiles chooses. New tiles entries can be added anywhere in this array,
+  -- and lines can be removed or comment out to disable a tile, but remember that
+  -- a comma must come after each entry. Each entry must have at minimum a `mons'
+  -- field defined with a name for the entry. The actual tile to use can come
+  -- from this `mons' field or either of the optional fields `tile' and
+  -- `tileset', which are described later. If neither `tile' nor `tileset' are
+  -- defined, then `mons' must be the monster name as seen under xv in-game (and
+  -- as defined in the source file mon-data.h). For example, the entry:
+  --
+  --   {mons = "hell sentinel"},
+  --
+  -- is equivalent to the rc option:
+  --
+  --   tile_player_tile = mons:hell sentinel
+  --
+  -- If the `mons' field isn't the monster's name, either because you've renamed
+  -- it or because the corresponding monster doesn't exist, set the `tile' field
+  -- to the tile's full name. The player_name_pairs[] array in the source file
+  -- rltiles/tiledef-player.cc defines these names for all player tiles, and only
+  -- tiles defined in this file can be used. These are the tiles you see in
+  -- crawl's tilesheet file player.png.
+  --
+  -- For example, the following entry:
+  --
+  --   {mons = "a Zot statue", tile = "mons_zot_statue"},
+  --
+  -- is equivalent to the rc option:
+  --
+  --   tile_player_tile = tile:mons_zot_statue
+  --
+  -- For monsters like butterflies that have variant tiles, you can set the field
+  -- `num_var' to the number of variants in order to use them. The array
+  -- _tile_player_count[] in rltiles/tiledef-player.cc defines how many variants
+  -- exist for each tile, but it's easier to look in the folders under
+  -- rltiles/mon where the individual tile images are and see how many variants a
+  -- tile has. Since rltiles/mon/animals has butterfly.png through
+  -- butterfly10.png, which means 11 variants, the entry is:
+  --
+  --   {mons = "butterfly", tile = "mons_butterfly", num_var=11},
+  --
+  -- By default RandomTiles chooses a new variant with each UI action (i.e. any
+  -- keystroke that's not in a menu or prompt), even if the player's turn
+  -- didn't change. Set the field `var_type' to "fixed", "sequence", or
+  -- "oscillate" to change this behavior. With "fixed" a single variant is
+  -- chosen when the entry is chosen, and with "sequence" and "oscillate",
+  -- variants are progressed through in order (sequence) or forward-reverse
+  -- order (oscillate) with each UI action.
+  --
+  -- You can define a custom set of variants for use in an entry using the
+  -- `tileset' field. For example, here's an entry for the Serpent of Hell that
+  -- randomly chooses a Hell variant with every UI action:
+  --
+  --   {mons = "The Serpent of Hell",
+  --    tileset = {"mons_serpent_of_hell_tartarus",
+  --               "mons_serpent_of_hell_cocytus",
+  --               "mons_serpent_of_hell_dis",
+  --               "mons_serpent_of_hell_gehenna"}},
+  --
+  -- Custom tilesets can use any of the `var_type' values described above.
+  --
+  -- When the `tileset' field is used, there are special `var_type' values of
+  -- "terrain", "status", "percent_hp", and "xl" available, which will change
+  -- the tile based on a condition. To use one of these, make the
+  -- tileset field into an an array of arrays, with the first entry in the
+  -- inner array giving the condition value and the second giving the
+  -- corresponding tile applied under that condition. The first entry in
+  -- `tileset' must have an inner array value of "default" for when no other
+  -- entry matches.
+  --
+  -- For numeric `var_type' values like "percent_hp" and "xl", the first
+  -- condition value for each non-default entries must be a number, and the
+  -- tile of an entry is used if the player's current value is in less than or
+  -- equal to the entry's condition value and greater than any other
+  -- non-default entry in the tileset. For string values like "terrain" and
+  -- "status", the first condition value will be a string that is matched
+  -- against the player's current value. For "status", multiple status values
+  -- can be active for the player, so we always use the first matching entry,
+  -- and they should be listed in tileset in order of preference.
+  --
+  -- See the entry for Ilsiuw to see a var_type example of "terrain", and the
+  -- entry for Bai Suzhen to see an example of "percent_hp". Here is an
+  -- example entry using a var_type of "status" that will use the Purgy tile
+  -- normally, the Snorg tile when berserking, and the torpor snail tile when
+  -- slowed (but not fast+slow):
+  --
+  --   {mons = "Snorgy Snail", tileset = {{"default", "mons_purgy"},
+  --                                      {"berserk", "mons_snorg"},
+  --                                -- entry below matches fast and fast+slow
+  --                                      {"fast",    "mons_purgy"},
+  --                                      {"slow",   "mons_torpor_snail"}},
+  --    var_type = "status"},
+  --
+  -- The status names can be seen under the @ listing on the % screen, and
+  -- these are the short_text values from the duration_data[] array defined in
+  -- the source file duration-data.h. String value conditions are matched as
+  -- lua patterns, so substring matches and wildcards will work; see the lua
+  -- reference for details: http://www.lua.org/pil/20.2.html
+  --
+
+  -- begin player_tiles array
+  if not player_tiles then
+    player_tiles = {
+      {mons = "acid blob"},
+      {mons = "acid dragon", min_version = 0.20},
+      {mons = "adder"},
+      {mons = "Agnes"},
+      {mons = "air elemental"},
+      {mons = "Aizul"},
+      {mons = "alligator"},
+      {mons = "alligator snapping turtle"},
+      {mons = "ancient champion"},
+      {mons = "angel"},
+      {mons = "Antaeus"},
+      {mons = "ancient lich"},
+      {mons = "ancient zyme"},
+      {mons = "anubis guard", max_version = 0.18},
+      {mons = "apis"},
+      {mons = "apocalypse crab"},
+      {mons = "Arachne", tile = "mons_arachne_staveless"},
+      {mons = "Asmodeus"},
+      {mons = "Asterion"},
+      {mons = "Azrael"},
+      {mons = "azure jelly"},
+      {mons = "anaconda", weapon_offsets = "0,0", shield_offsets = "-2,5"},
+      {mons = "Bai Suzhen", min_version = 0.19, tileset = {
+         {"default", "mons_bai_suzhen"},
+         {0.5, "mons_bai_suzhen_dragon"}},
+       var_type = "percent_hp"},
+      {mons = "ball lightning"},
+      {mons = "ball python"},
+      {mons = "ballistomycete",
+       tileset = {"mons_ballistomycete_inactive",
+                  "mons_hyperactive_ballistomycete"}, var_type = "sequence"},
+      {mons = "ballistomycete spore", min_version = 0.19},
+      {mons = "balrug"},
+      {mons = "bat"},
+      {mons = "battlemage", min_version = 0.19},
+      {mons = "battlesphere"},
+      {mons = "basilisk"},
+      {mons = "bennu"},
+      {mons = "big kobold"},
+      {mons = "black bear"},
+      {mons = "black draconian"},
+      {mons = "black mamba"},
+      {mons = "blink frog", weapon_offsets = "5,-3", shield_offsets = "0,0"},
+      {mons = "blizzard demon"},
+      {mons = "block of ice", tile = "mons_block_of_ice", num_var = 2,
+       var_type="fixed"},
+      {mons = "Blork the orc"},
+      {mons = "bog body"},
+      {mons = "boggart"},
+      {mons = "bone dragon"},
+      {mons = "Boris"},
+      {mons = "boulder beetle", max_version = 0.18,
+       tileset = {"mons_boulder_beetle",
+                  "mons_boulder_beetle_rolling",
+                  "mons_boulder_beetle_rolling_1",
+                  "mons_boulder_beetle_rolling_2",
+                  "mons_boulder_beetle_rolling_3",
+                  "mons_boulder_beetle_rolling_4"},
+       var_type = "sequence"},
+      {mons = "briar patch"},
+      {mons = "brimstone fiend"},
+      {mons = "bullfrog", min_version = 0.19},
+      {mons = "burning bush"},
+      {mons = "bush", tile = "mons_bush", num_var = 4, var_type = "fixed"},
+      {mons = "butterfly", tile = "mons_butterfly", num_var = 11},
+      {mons = "cacodemon", weapon_offsets = "3,0", shield_offsets = "0,0"},
+      {mons = "catoblepas"},
+      {mons = "caustic shrike", weapon_offsets = "-3,0",
+       shield_offsets = "0,0"},
+      {mons = "centaur"},
+      {mons = "centaur warrior"},
+      {mons = "Cerebov"},
+      {mons = "chaos spawn", tile = "mons_chaos_spawn", num_var = 5},
+      {mons = "cherub"},
+      {mons = "Chuck"},
+      {mons = "Cigotuvi's monster", tile = "mons_cigotuvis_monster"},
+      {mons = "Cloud Mage"},
+      {mons = "crawling corpse"},
+      {mons = "Crazy Yiuf"},
+      {mons = "crocodile"},
+      {mons = "crystal guardian"},
+      {mons = "crimson imp"},
+      {mons = "curse skull"},
+      {mons = "curse toe"},
+      {mons = "cyclops"},
+      {mons = "daeva"},
+      {mons = "dart slug", min_version = 0.18},
+      {mons = "death drake"},
+      {mons = "death knight", min_version = 0.17},
+      {mons = "death ooze"},
+      {mons = "death scarab", weapon_offsets = "-2,0",
+       shield_offsets = "-12,0"},
+      {mons = "death yak", weapon_offsets = "-4,0", shield_offsets = "-2,0"},
+      {mons = "deep elf archer", min_version = 0.18},
+      {mons = "deep elf annihilator"},
+      {mons = "deep elf blademaster"},
+      {mons = "deep elf death mage"},
+      {mons = "deep elf demonologist"},
+      {mons = "deep elf elementalist", min_version = 0.18},
+      {mons = "deep elf high priest"},
+      {mons = "deep elf knight"},
+      {mons = "deep elf mage"},
+      {mons = "deep elf master archer"},
+      {mons = "deep elf sorcerer"},
+      {mons = "deep dwarf"},
+      {mons = "deep troll"},
+      {mons = "deep troll earth mage", weapon_offsets = "-3,6",
+       shield_offsets = "0,0"},
+      {mons = "deep troll monk ghost", tile = "mons_faint_deep_troll_monk"},
+      {mons = "deep troll shaman", weapon_offsets = "-3,6",
+       shield_offsets = "0,0"},
+      {mons = "deathcap"},
+      {mons = "death cob"},
+      {mons = "deformed elf", tile = "mons_deformed_elf"},
+      {mons = "deformed human", tile = "mons_deformed_human"},
+      {mons = "deformed orc", tile = "mons_deformed_orc"},
+      {mons = "demigod"},
+      {mons = "demonic crawler"},
+      {mons = "demonic plant", tile = "mons_demonic_plant"},
+      {mons = "demonspawn"},
+      {mons = "demonspawn monk ghost", tile = "mons_faint_demonspawn_monk"},
+      {mons = "diamond obelisk"},
+      {mons = "dimme", tile = "mons_dimme"},
+      {mons = "dire elephant", weapon_offsets = "-2,3",
+       shield_offsets = "0,0"},
+      {mons = "Dispater"},
+      {mons = "Dissolution"},
+      {mons = "doom hound", min_version = 0.18},
+      {mons = "Donald"},
+      {mons = "Dowan", tile = "mons_dowan", num_var = 2,
+       var_type = "sequence"},
+      {mons = "draconian", tile = "draco_base"},
+      {mons = "draconian monk ghost", tile = "mons_faint_grey_draconian_monk"},
+      {mons = "dream sheep", min_version = 0.19},
+      {mons = "drowned soul"},
+      {mons = "dryad"},
+      {mons = "Duvessa", tile = "mons_duvessa", num_var = 2,
+       var_type = "sequence"},
+      {mons = "dwarf"},
+      {mons = "Edmund"},
+      {mons = "earth elemental"},
+      {mons = "efreet"},
+      {mons = "electric eel"},
+      {mons = "electric golem"},
+      {mons = "Eustachio"},
+      {mons = "eidolon"},
+      {mons = "eldritch tentacle", tile = "mons_eldritch_tentacle_portal_9"},
+      {mons = "elemental wellspring"},
+      {mons = "elephant", weapon_offsets = "-2,3", shield_offsets = "0,0"},
+      {mons = "elf"},
+      {mons = "emperor scorpion"},
+      {mons = "the Enchantress"},
+      {mons = "entropy weaver", min_version = 0.17},
+      {mons = "Ereshkigal", weapon_offsets = "0,-20", shield_offsets = "2,-8"},
+      {mons = "Erica"},
+      {mons = "Erolcha"},
+      {mons = "ettin"},
+      {mons = "eye of devastation"},
+      {mons = "eye of draining"},
+      {mons = "executioner"},
+      {mons = "Fannar"},
+      {mons = "faun"},
+      {mons = "felid", tile = "felid", num_var = 10, var_type = "fixed"},
+      {mons = "fire bat"},
+      {mons = "fire crab"},
+      {mons = "fire dragon"},
+      {mons = "fire drake", max_version = 0.17},
+      {mons = "fire elemental"},
+      {mons = "fire giant"},
+      {mons = "fire vortex", tile = "mons_fire_vortex", num_var = 4,
+       var_type = "sequence"},
+      {mons = "flayed ghost"},
+      {mons = "flesh golem", tile = "mons_flesh_golem"},
+      {mons = "floating eye", min_version = 0.19},
+      {mons = "flying skull"},
+      {mons = "formicid"},
+      {mons = "Frances"},
+      {mons = "Frederick"},
+      {mons = "freezing wraith"},
+      {mons = "frilled lizard", min_version = 0.19},
+      {mons = "frost giant"},
+      {mons = "fulminant prism", tile = "mons_fulminant_prism", num_var = 4,
+       var_type = "sequence"},
+      {mons = "fungus", tile = "mons_fungus", num_var = 9, var_type = "fixed"},
+      {mons = "gargoyle"},
+      {mons = "Gastronok"},
+      {mons = "Geryon"},
+      {mons = "ghost", tile = "mons_player_ghost"},
+      {mons = "ghost crab"},
+      {mons = "ghost moth"},
+      {mons = "ghoul"},
+      {mons = "THE GIAGGOSTUONO", tile = "mons_giaggostuono"},
+      {mons = "giant cockroach"},
+      {mons = "giant gecko", max_version = 0.18},
+      {mons = "giant lizard", max_version = 0.18},
+      {mons = "giant orange brain", max_version = 0.18},
+      {mons = "giant eyeball", max_version = 0.18},
+      {mons = "giant frog", max_version = 0.18},
+      {mons = "giant leech", max_version = 0.18},
+      {mons = "giant spore", max_version = 0.18},
+      {mons = "gigabat", tile = "mons_gigabat"},
+      {mons = "Gloorx Vloq"},
+      {mons = "glowing orange brain", min_version = 0.19},
+      {mons = "gnoll"},
+      {mons = "gnoll sergeant"},
+      {mons = "gnoll shaman"},
+      {mons = "goblin"},
+      {mons = "golden dragon"},
+      {mons = "golden eye"},
+      {mons = "great orb of eyes"},
+      {mons = "greater mummy"},
+      {mons = "greater naga", max_version = 0.18},
+      {mons = "green death"},
+      {mons = "green draconian"},
+      {mons = "grey draconian"},
+      {mons = "Grinder"},
+      {mons = "Grum"},
+      {mons = "guardian golem"},
+      {mons = "guardian mummy"},
+      {mons = "guardian serpent"},
+      {mons = "halazid warlock", min_version = 0.19},
+      {mons = "halfling"},
+      {mons = "Harold"},
+      {mons = "harpy"},
+      {mons = "Hellbinder"},
+      {mons = "hellephant"},
+      {mons = "hellion"},
+      {mons = "hellwing"},
+      {mons = "hell beast"},
+      {mons = "hell hog"},
+      {mons = "hell hound"},
+      {mons = "hell knight"},
+      {mons = "hell rat"},
+      {mons = "hell sentinel"},
+      {mons = "hell wizard",
+       tileset = {"mons_hell_wizard_1",
+                  "mons_hell_wizard_2",
+                  "mons_hell_wizard_3"},
+       var_type = "oscillate"},
+      {mons = "hexer", min_version = 0.19},
+      {mons = "hill giant", max_version = 0.19},
+      {mons = "hippogriff"},
+      {mons = "hobgoblin"},
+      {mons = "hog"},
+      {mons = "holy swine"},
+      {mons = "hornet"},
+      {mons = "hound"},
+      {mons = "howler monkey", min_version = 0.18},
+      {mons = "human"},
+      {mons = "hungry ghost"},
+      {mons = "hydra", tile = "mons_hydra", num_var = 5, var_type = "oscillate"},
+      {mons = "ice beast"},
+      {mons = "ice fiend"},
+      {mons = "ice devil"},
+      {mons = "ice dragon"},
+      {mons = "ice statue"},
+      {mons = "iguana"},
+      {mons = "Ignacio"},
+      {mons = "Ijyb"},
+      {mons = "Ilsuiw", tileset = {
+         {"default", "mons_ilsuiw"},
+         {"water", "mons_ilsuiw_water"}},
+       var_type = "terrain"},
+      {mons = "imperial myrmidon", min_version = 0.19},
+      {mons = "insubstantial wisp"},
+      {mons = "ironbrand convoker"},
+      {mons = "ironheart preserver"},
+      {mons = "iron dragon"},
+      {mons = "iron elemental"},
+      {mons = "iron giant", min_version = 0.18},
+      {mons = "iron golem"},
+      {mons = "The Iron giant", max_version = 0.17},
+      {mons = "iron imp"},
+      {mons = "iron troll", weapon_offsets = "-3,6", shield_offsets = "0,0"},
+      {mons = "jackal"},
+      {mons = "jelly"},
+      {mons = "Jessica"},
+      {mons = "jiangshi", weapon_offsets = "1,3", shield_offsets = "2,2"},
+      {mons = "Jorgrun"},
+      {mons = "Jörmungandr", tile = "mons_jormungandr"},
+      {mons = "Jory"},
+      {mons = "Joseph"},
+      {mons = "Josephine"},
+      {mons = "juggernaut", min_version = 0.17},
+      {mons = "jumping spider"},
+      {mons = "Khufu"},
+      {mons = "killer bee"},
+      {mons = "killer klown", tile = "mons_killer_klown", num_var = 5},
+      {mons = "Kirke"},
+      {mons = "knight", min_version = 0.19},
+      {mons = "kobold"},
+      {mons = "kobold demonologist"},
+      {mons = "komodo dragon"},
+      {mons = "kraken"},
+      {mons = "Lamia", tile = "mons_lamia", min_version = 0.17},
+      {mons = "large abomination", tile = "mons_abomination_large",
+       num_var = 7, var_type = "fixed"},
+      {mons = "lava snake", weapon_offsets = "0,0", shield_offsets = "-10,4"},
+      {mons = "leopard gecko", min_version = 0.19},
+      {mons = "Lernaean Hydra", tile = "mons_lernaean_hydra",
+       var_type = "oscillate", num_var = 10},
+      {mons = "lich"},
+      {mons = "lightning spire"},
+      {mons = "lindwurm", weapon_offsets = "-3,-2", shield_offsets = "0,0"},
+      {mons = "Lom Lobon"},
+      {mons = "lorocyproca"},
+      {mons = "lost soul"},
+      {mons = "Louise"},
+      {mons = "lurking horror"},
+      {mons = "macabre mass"},
+      {mons = "mana viper", weapon_offsets = "8,0", shield_offsets = "-2,2"},
+      {mons = "manticore"},
+      {mons = "Mara"},
+      {mons = "Margery"},
+      {mons = "Maud", tile = "mons_maud"},
+      {mons = "Maurice"},
+      {mons = "meliai", min_version = 0.19},
+      {mons = "Menkaure"},
+      {mons = "Mennas"},
+      {mons = "merfolk", tileset = {
+         {"default", "mons_merfolk"},
+         {"water", "mons_merfolk_water"}},
+       var_type = "terrain"},
+      {mons = "merfolk aquamancer", tileset = {
+         {"default", "mons_merfolk_aquamancer"},
+         {"water", "mons_merfolk_aquamancer_water"}},
+       var_type = "terrain"},
+      {mons = "merfolk avatar", tileset = {
+         {"default", "mons_merfolk_avatar"},
+         {"water", "mons_merfolk_avatar_water"}},
+       var_type = "terrain"},
+      {mons = "merfolk impaler",
+       tileset = {
+         {"default", "mons_merfolk_impaler"},
+         {"water", "mons_merfolk_impaler_water"}},
+       var_type = "terrain"},
+      {mons = "merfolk javelineer",
+       tileset = {
+         {"default", "mons_merfolk_javelineer"},
+         {"water", "mons_merfolk_javelineer_water"}},
+       var_type = "terrain"},
+      {mons = "merfolk siren", tileset = {
+         {"default", "mons_merfolk_siren"},
+         {"water", "mons_merfolk_siren_water"}},
+       min_version = 0.20, var_type = "terrain"},
+      {mons = "minotaur"},
+      {mons = "Mnoleg"},
+      {mons = "molten gargoyle"},
+      {mons = "moon troll", weapon_offsets = "-3,6", shield_offsets = "0,0",
+       min_version = 0.17},
+      {mons = "moth of wrath"},
+      {mons = "mottled draconian", max_version = 0.19},
+      {mons = "mottled dragon", max_version = 0.19},
+      {mons = "mummy"},
+      {mons = "mummy priest"},
+      {mons = "Murray"},
+      {mons = "mutant beast", max_version = 0.17},
+      {mons = "mutant beast", tile = "mutant_beast_base", num_var = 5,
+       var_type = "oscillate", min_version = 0.18},
+      {mons = "mutant fire beast", tile = "mutant_beast_fire", num_var = 5,
+       var_type = "oscillate", min_version = 0.18},
+      {mons = "naga"},
+      {mons = "nagaraja", min_version = 0.19},
+      {mons = "naga mage"},
+      {mons = "naga ritualist"},
+      {mons = "naga sharpshooter"},
+      {mons = "naga warrior"},
+      {mons = "Natasha"},
+      {mons = "necromancer"},
+      {mons = "necrophage"},
+      {mons = "Nellie"},
+      {mons = "neqoxec"},
+      {mons = "Nergalle"},
+      {mons = "Nessos"},
+      {mons = "Nikola"},
+      {mons = "Norris", max_version = 0.18},
+      {mons = "obsidian statue"},
+      {mons = "octopode"},
+      {mons = "octopode crusher", max_version = 0.17},
+      {mons = "ogre"},
+      {mons = "ogre mage"},
+      {mons = "oklob plant"},
+      {mons = "oklob sapling"},
+      {mons = "ooze"},
+      {mons = "ophan"},
+      {mons = "orange crystal statue"},
+      {mons = "orange demon"},
+      {mons = "orb fetus", tile = "mons_orb_guardian_fetus"},
+      {mons = "orb guardian"},
+      {mons = "orb of destruction", tile = "mons_orb_of_destruction",
+       num_var = 3, var_type = "sequence"},
+      {mons = "orb of electricity", tile = "mons_orb_of_electricity"},
+      {mons = "orb of fire"},
+      {mons = "orb of ice", tile = "mons_orb_of_ice"},
+      {mons = "orb spider"},
+      {mons = "orc"},
+      {mons = "orc high priest"},
+      {mons = "orc knight"},
+      {mons = "orc priest"},
+      {mons = "orc sorcerer"},
+      {mons = "orc warlord"},
+      {mons = "orc warrior"},
+      {mons = "orc wizard"},
+      {mons = "master elementalist", tile = "mons_master_elementalist"},
+      {mons = "pale draconian"},
+      {mons = "pandemonium lord"},
+      {mons = "peacekeeper", min_version = 0.19},
+      {mons = "pearl dragon"},
+      {mons = "phantasmal warrior"},
+      {mons = "phantom"},
+      {mons = "phase bat", tile = "mons_phase_bat"},
+      {mons = "Pikel"},
+      {mons = "pillar of salt", weapon_offsets = "3,0",
+       shield_offsets = "0,0"},
+      {mons = "plant"},
+      {mons = "polar bear"},
+      {mons = "porcupine"},
+      {mons = "Polyphemus"},
+      {mons = "Prince Ribbit", weapon_offsets = "5,-3",
+       shield_offsets = "0,0"},
+      {mons = "profane servitor"},
+      {mons = "Psyche"},
+      {mons = "Purgy"},
+      {mons = "purple draconian"},
+      {mons = "quasit"},
+      {mons = "queen ant"},
+      {mons = "queen bee"},
+      {mons = "quicksilver dragon"},
+      {mons = "quokka"},
+      {mons = "ragged hierophant"},
+      {mons = "raiju"},
+      {mons = "rakshasa"},
+      {mons = "rat"},
+      {mons = "reaper"},
+      {mons = "redback"},
+      {mons = "red devil"},
+      {mons = "red draconian"},
+      {mons = "revenant"},
+      {mons = "rime drake", min_version = 0.18},
+      {mons = "river rat"},
+      {mons = "Robin"},
+      {mons = "Roxanne"},
+      {mons = "the Royal Jelly"},
+      {mons = "Rupert"},
+      {mons = "rust devil"},
+      {mons = "Saint Roka"},
+      {mons = "salamander"},
+      {mons = "salamander firebrand", max_version = 0.17},
+      {mons = "salamander mystic"},
+      {mons = "salamander stormcaller", min_version = 0.17,
+       max_version = 0.18},
+      {mons = "saltling", min_version = 0.19},
+      {mons = "satyr"},
+      {mons = "scorpion"},
+      {mons = "sea snake", weapon_offsets = "-4,5", shield_offsets = "-4,4"},
+      {mons = "seraph"},
+      {mons = "The Serpent of Hell", tileset = {
+         "mons_serpent_of_hell_tartarus",
+         "mons_serpent_of_hell_cocytus",
+         "mons_serpent_of_hell_dis",
+         "mons_serpent_of_hell_gehenna"}},
+      {mons = "servant of whispers", min_version = 0.19},
+      {mons = "shadow"},
+      {mons = "shadow demon"},
+      {mons = "shadow dragon"},
+      {mons = "shadow fiend", max_version = 0.17},
+      {mons = "shadow imp"},
+      {mons = "shadow wraith"},
+      {mons = "shambling mangrove"},
+      {mons = "shapeshifter", tileset = {
+         "mons_glowing_shapeshifter",
+         "mons_shapeshifter"},
+       var_type="sequence"},
+      {mons = "shard shrike", weapon_offsets = "8,0", shield_offsets = "0,0"},
+      {mons = "sheep", max_version = 0.18},
+      {mons = "shining eye"},
+      {mons = "shock serpent", weapon_offsets = "3,0",
+       shield_offsets = "-2,3"},
+      {mons = "Sigmund"},
+      {mons = "silent spectre"},
+      {mons = "singularity", tile = "mons_singularity",
+       num_var = 4, var_type = "sequence", min_version = 0.16,
+       max_version = 0.16},
+      {mons = "siren", tileset = {
+         {"default", "mons_siren"},
+         {"water", "mons_siren_water"}},
+       max_version = 0.19, var_type = "terrain"},
+      {mons = "sixfirhy"},
+      {mons = "skeletal warrior"},
+      {mons = "sky beast"},
+      {mons = "slave"},
+      {mons = "slime creature", num_var = 5, var_type = "oscillate",
+       tile = "mons_slime_creature"},
+      {mons = "small abomination"},
+      {mons = "smoke demon"},
+      {mons = "snapping turtle", tileset = {
+         "mons_snapping_turtle",
+         "mons_alligator_snapping_turtle"},
+       var_type="sequence"},
+      {mons = "Snorg"},
+      {mons = "soldier ant"},
+      {mons = "Sojobo"},
+      {mons = "Sonja"},
+      {mons = "soul eater"},
+      {mons = "spark wasp", min_version = 0.18},
+      {mons = "spatial maelstrom", tile = "mons_spatial_maelstrom",
+       num_var = 4, var_type = "sequence"},
+      {mons = "spatial vortex", tile = "mons_spatial_vortex", num_var = 4,
+       var_type = "sequence"},
+      {mons = "spellforged servitor"},
+      {mons = "sphinx"},
+      {mons = "spiny frog", weapon_offsets = "5,-3", shield_offsets = "0,0"},
+      {mons = "spooky ghost", tile = "mons_ghost"},
+      {mons = "spriggan"},
+      {mons = "spriggan air mage"},
+      {mons = "spriggan berserker"},
+      {mons = "spriggan defender"},
+      {mons = "spriggan druid"},
+      {mons = "spriggan rider"},
+      {mons = "steam dragon"},
+      {mons = "stone giant"},
+      {mons = "storm dragon"},
+      {mons = "strange machine", tile = "mons_statue_guardian", num_var = 8,
+       var_type = "sequence", max_version = 0.16},
+      {mons = "sun demon"},
+      {mons = "starcursed mass"},
+      {mons = "swamp dragon"},
+      {mons = "swamp drake"},
+      {mons = "swamp worm"},
+      {mons = "tarantella"},
+      {mons = "tengu"},
+      {mons = "tengu conjurer"},
+      {mons = "tengu reaver"},
+      {mons = "tengu warrior"},
+      {mons = "tentacled monstrosity"},
+      {mons = "tentacled starspawn"},
+      {mons = "Terence"},
+      {mons = "test spawner"},
+      {mons = "thorn hunter"},
+      {mons = "thrashing horror"},
+      {mons = "Tiamat", tile = "mons_tiamat", num_var = 9},
+      {mons = "titan"},
+      {mons = "toadstool", tile = "mons_toadstool", num_var = 2,
+       var_type = "fixed"},
+      {mons = "toenail golem"},
+      {mons = "tormentor"},
+      {mons = "torpor snail", weapon_offsets = "9,-2", shield_offsets = "0,0"},
+      {mons = "training dummy"},
+      {mons = "trapdoor spider", max_version = 0.17},
+      {mons = "tree", tile = "tran_tree"},
+      {mons = "troll"},
+      {mons = "twister", tile = "mons_twister", num_var = 4,
+       var_type = "sequence"},
+      {mons = "two-headed ogre"},
+      {mons = "tyrant leech", min_version = 0.19},
+      {mons = "tzitzimitl", min_version = 0.18},
+      {mons = "ufetubus"},
+      {mons = "ugly thing", tile = "mons_ugly_thing", num_var = 6},
+      {mons = "unborn", max_version = 0.16},
+      {mons = "unseen horror"},
+      {mons = "the Unspeakable", tile = "mons_unspeakable"},
+      {mons = "Urug"},
+      {mons = "ushabti"},
+      {mons = "vampire"},
+      {mons = "vampire bat"},
+      {mons = "vampire knight"},
+      {mons = "vampire mage"},
+      {mons = "vampire mosquito"},
+      {mons = "Vashnia"},
+      {mons = "vault guard"},
+      {mons = "vault sentinel"},
+      {mons = "vault warden"},
+      {mons = "very ugly thing", tile = "mons_very_ugly_thing", num_var = 6},
+      {mons = "vine stalker"},
+      {mons = "wandering mushroom"},
+      {mons = "war gargoyle"},
+      {mons = "water elemental"},
+      {mons = "water moccasin"},
+      {mons = "water nymph"},
+      {mons = "warg"},
+      {mons = "wasp", max_version = 0.18},
+      {mons = "white draconian"},
+      {mons = "white imp"},
+      {mons = "wind drake"},
+      {mons = "wight"},
+      {mons = "Wiglaf", tile = "mons_wiglaf"},
+      {mons = "withered plant", tile = "mons_withered_plant"},
+      {mons = "Wiglaf", max_version = 0.18},
+      {mons = "wizard"},
+      {mons = "wolf"},
+      {mons = "wolf spider"},
+      {mons = "worker ant"},
+      {mons = "worldbinder"},
+      {mons = "worm"},
+      {mons = "wretched star"},
+      {mons = "wraith"},
+      {mons = "wyvern"},
+      {mons = "XTAHUA"},
+      {mons = "yak", weapon_offsets = "-4,0", shield_offsets = "-2,0"},
+      {mons = "yaktaur"},
+      {mons = "yaktaur captain"},
+      {mons = "yellow draconian"},
+      {mons = "ynoxinul"},
+      {mons = "Zonguldrok", tile = "mons_zonguldrok_lich"},
+      {mons = "a Zot statue", tile = "mons_zot_statue"},
+    } -- end player_tiles array
+  end
+
+  -- Note: No further configuration past this point.
+
+  -- A list of tiles that are valid and compatible with our version.
+  valid_tiles = {}
+  rtdat = nil
+
+  -- Wrapper of crawl.mpr() that prints text in white by default.
+  if not mpr then
+    mpr = function (msg, color)
+      if not color then
+        color = "white"
+      end
+      crawl.mpr("<" .. color .. ">" .. msg .. "</" .. color .. ">")
+    end
+  end
+
+  -- Populate valid_tiles
+  function init_random_tiles(tiles)
+    local version = tonumber(crawl.version("major"))
+
+    for i,v in ipairs(player_tiles) do
+      if v.mons
+        and (not v.min_version or version >= tonumber(v.min_version))
+      and (not v.max_version or version <= tonumber(v.max_version)) then
+        valid_tiles[#valid_tiles + 1] = v
+      end
+    end
+
+    -- state data
+    local default_state = {index = 1 + crawl.random2(#valid_tiles),
+                           last_index_change = you.turns(),
+                           last_variant = -1,
+                           forward_direction = true,
+                           last_xl = tonumber(you.xl()),
+                           enabled = true,
+                           timer_enabled = true}
+
+    if not c_persist.randomtile_state then
+      c_persist.randomtile_state = {}
+    end
+
+    rtdat = c_persist.randomtile_state
+    for key,val in pairs(default_state) do
+      if rtdat[key] == nil then
+        rtdat[key] = val
+      end
+    end
+
+    if rtdat.enabled then
+      enable_random_tile(true)
+    else
+      disable_random_tile(true)
+    end
+  end
+
+  -- Print a message about a tile set change
+  function tile_change_message()
+    if not randtile_options.god_message then
+      return
+    end
+
+    local god = you.god()
+    if god == "No God" then
+      god = randtile_options.default_god
+    end
+    if randtile_options.god_speech[god] then
+      msg_template = randtile_options.god_speech[god]
+    else
+      msg_template = randtile_options.god_speech["default"]
+    end
+
+    local msg = msg_template:gsub("%%g", god)
+    local amons = crawl.grammar(valid_tiles[rtdat.index].mons, "A")
+    local mons = valid_tiles[rtdat.index].mons
+    msg = msg:gsub("%%am", amons)
+    mons = mons:gsub("^[tT][hH][eE] ", "")
+    mons = mons:gsub("^[aA][nN]? ", "")
+    msg = msg:gsub("%%m", mons)
+    mpr(msg, randtile_options.message_colour)
+  end
+
+  function get_terrain()
+    local feat = view.feature_at(0,0)
+    -- Set to "air" when flying so water and lava features under the
+    -- player don't cause spurious matches.
+    if you.status():find("flying") then
+      feat = "air"
+    end
+    return feat
+  end
+
+  function get_percent_hp()
+    local hp, mhp = you.hp()
+    return hp / mhp
+  end
+
+  if not var_functions then
+    var_functions = {
+      ["percent_hp"] = get_percent_hp,
+      ["status"] = you.status,
+      ["terrain"] = get_terrain,
+      ["xl"] = you.xl,
+    }
+  end
+
+  -- Change the current tile using the tileset entry with the given index in
+  -- valid_tiles. This will update the randtile state as necessary.
+  function change_tile(index, force)
+    local tileopt = nil
+    local change_index = force or index ~= rtdat.index
+    local entry = valid_tiles[index]
+    local num_var = entry.num_var
+    if not num_var and entry.tileset then
+      num_var = table.getn(entry.tileset)
+    end
+    if num_var then
+      local var_type = entry.var_type
+      if not var_type then
+        var_type = "random"
+      end
+      local variant = 1
+      if var_type == "random" or var_type == "fixed" then
+        variant = crawl.random2(num_var) + 1
+        -- Iterate the sequence variant if we have valid state for it.
+      elseif var_type == "sequence"
+        and not change_index
+        and rtdat.last_variant >= 1
+      and rtdat.last_variant < num_var then
+        variant = rtdat.last_variant + 1
+      elseif var_type == "oscillate"
+        and not change_index
+        and rtdat.last_variant >= 1 then
+        if rtdat.forward_direction and rtdat.last_variant == num_var then
+          rtdat.forward_direction = false
+        elseif not rtdat.forward_direction and rtdat.last_variant == 1 then
+          rtdat.forward_direction = true
+        end
+        variant = rtdat.last_variant + (rtdat.forward_direction and 1 or -1)
+      elseif var_functions[var_type] ~= nil then
+        local comp_value = var_functions[var_type]()
+        local comp_string = true
+        if type(comp_value) == "number" then
+          comp_string = false
+        end
+        for i, v in pairs(entry.tileset) do
+          if i > 1
+            and (comp_string and comp_value:find(v[1])
+                 or not comp_string and comp_value <= v[1]) then
+              variant = i
+              -- For string values, take the first match
+              if comp_string then
+                break
+              end
+          end
+        end
+      end
+      rtdat.last_variant = variant
+      -- custom-defined tilesets or an variant set defined by crawl itself.
+      if entry.tileset then
+        -- For var_type values that use var_functions
+        if type(entry.tileset[variant]) == "table" then
+          tileopt = entry.tileset[variant][2]
+        else
+          tileopt = entry.tileset[variant]
+        end
+      elseif entry.tile then
+        local var_suf
+        if variant == 1 then
+          var_suf = ""
+        else
+          var_suf = "_" .. variant - 1
+        end
+        tileopt = entry.tile .. var_suf
+      end
+      tileopt = "tile:" .. tileopt
+    elseif entry.tile then
+      tileopt = "tile:" .. entry.tile
+    elseif entry.mons then
+      tileopt = "mons:" .. entry.mons
+    end
+
+    if not tileopt then
+      return
+    end
+
+    if change_index then
+      rtdat.index = index
+      rtdat.last_index_change = you.turns()
+    end
+
+    crawl.setopt("tile_player_tile = " .. tileopt)
+    if valid_tiles[index].weapon_offsets then
+      crawl.setopt("tile_weapon_offsets = "
+                     .. valid_tiles[index].weapon_offsets)
+    else
+      crawl.setopt("tile_weapon_offsets = reset")
+    end
+    if valid_tiles[index].shield_offsets then
+      crawl.setopt("tile_shield_offsets = "
+                     .. valid_tiles[index].shield_offsets)
+    else
+      crawl.setopt("tile_shield_offsets = reset")
+    end
+
+    if change_index then
+      tile_change_message()
+    end
+  end
+
+  -- Change the tile by partial match of name to the mons entries in
+  -- valid_tiles. Reads name from input if it's not given as an argument.
+  function set_tile_by_name(name)
+    if name == nil then
+      crawl.formatted_mpr("Enter a tile name search string: ", "prompt")
+      name = crawl.c_input_line()
+      if not name then
+        return
+      end
+    end
+    local first_match = nil
+    name = name:lower()
+    for i,v in ipairs(valid_tiles) do
+      local mname = v.mons:lower()
+      if mname == name then
+        first_match = i
+        break
+      elseif mname:find(name) and not first_match then
+        first_match = i
+      end
+    end
+    if first_match then
+      change_tile(first_match, true)
+    else
+      mpr("Unable to match a player_tile mons value with " .. name, "lightred")
+    end
+  end
+
+  -- Checks the randtile state, changing the tile when necessary. A change of the
+  -- tile index will cause a tile change message to be displayed. The tile may be
+  -- changed to a new tileset variant even if the index is unchanged, depending
+  -- on the definition of the current tileset. If force_change is true, the tile
+  -- index will always be changed.
+  function random_tile(force_change)
+    if not valid_tiles or not rtdat.enabled then
+      return
+    end
+
+    local num_tiles = #valid_tiles
+    local xl_changed = tonumber(you.xl()) ~= rtdat.last_xl
+    if xl_changed then
+      rtdat.last_xl = tonumber(you.xl())
+    end
+
+    local turns_passed = tonumber(you.turns()) - randtile_options.turns_change
+    local change_index = force_change or rtdat.timer_enabled
+      and (xl_changed or turns_passed >= rtdat.last_index_change)
+    local index
+    if change_index then
+      index = 1 + crawl.random2(num_tiles)
+    else
+      index = rtdat.index
+    end
+
+    local entry = valid_tiles[index]
+    local var_type = "random"
+    if (entry.num_var or entry.tileset) and entry.var_type then
+      var_type = entry.var_type
+    end
+    if not change_index and var_type == "fixed" then
+      return
+    end
+
+    -- We're changing the player tile because of an index change or because we
+    -- are using a variant tileset that changes with every UI input.
+    change_tile(index)
+  end
+
+  -- Force a tile change
+  function new_random_tile()
+    random_tile(true)
+  end
+
+  -- Toggle the turn/xl timer to disable/enable index changing.
+  function toggle_tile_timer()
+    if rtdat.timer_enabled then
+      mpr("Disabling tile changes by turn or XL.")
+    else
+      mpr("Enabling tile changes by turn and XL.")
+    end
+    rtdat.timer_enabled = not rtdat.timer_enabled
+  end
+
+  function enable_random_tile(quiet)
+    if not quiet then
+      mpr("Enabling RandomTiles.")
+    end
+    rtdat.enabled = true
+    -- Don't attempt to load an invalid index
+    if rtdat.index == nil or rtdat.index > #valid_tiles then
+      rtdat.index = 1 + crawl.random2(#valid_tiles)
+    end
+    change_tile(rtdat.index, true)
+  end
+
+  function disable_random_tile(quiet)
+    rtdat.enabled = false
+    crawl.setopt("tile_player_tile = " .. randtile_options.disabled_setting)
+    crawl.setopt("tile_weapon_offsets = reset")
+    crawl.setopt("tile_shield_offsets = reset")
+    if not quiet then
+      mpr("Disabling RandomTiles.")
+    end
+  end
+
+  -- Toggle RandomTiles, setting it tile_player_tile to default setting if we're
+  -- disabling.
+  function toggle_random_tile()
+    if rtdat.enabled then
+      disable_random_tile()
+    else
+      enable_random_tile()
+    end
+  end
+
+  -- Initialize the tileset, removing any invalid tile entries.
+  init_random_tiles(player_tiles)
+
+  -------------------------
+  ---- End RandomTiles ----
+  -------------------------
+>
+
+{
+
+-----------------------------
+---- Begin speedrun_rest ----
+-----------------------------
+
+-- See README.md for documentation.
+
+-- How many turns to rest at max.
+num_rest_turns = 30
+
+-- If true, look for a foot item inventory slot and use fallback_slot if we
+-- can't find a ration. If false, always use fallback_slot.
+automatic_slot = true
+
+-- Slot where you keep your slow swing item.
+fallback_slot = "c"
+
+-- Set to true to have Na characters always walk instead of item swing if
+-- they're able to walk slowly. This is not as turncount efficient for non-Chei
+-- worshipers, but some Na players may prefer it over having to change the
+-- wielded weapon.
+naga_always_walk = false
+
+-- Delay in milliseconds before sending the next walk command. Makes the
+-- visuals a bit less jarring when using walk resting. Set to 0 to disable.
+walk_delay = 50
+
+-- To have the multi-turn rest ignore status change messages, add an entry here
+-- giving the pattern of the message you'd like to ignore. The entries below
+-- cover the transition messages from the regen spell, Trog's hand, and poison
+-- status. The key should be the status that's seen in the output of
+-- `you.status()` when the status is active, and the value should be a single
+-- pattern string or an array of pattern strings matching the message you'd
+-- like to ignore. See the lua string library manual for details on making
+-- patterns.
+status_messages = {
+  ["poisoned"] = {"You feel[^%.]+sick%.",
+                  "You are no longer poisoned%."},
+  ["regenerating"] = {"You feel the effects of Trog's Hand fading%.",
+                      "Your skin is crawling a little less now%."}
+} --end status_messages
+
+-- Like status_messages above, but for arbitrary messages. Any message matching
+-- one of these patterns is ignored.
+ignore_messages = {
+  --RandomTiles messages
+  "Trog roars: Now[^!]+!+",
+  "Sif Muna whispers: Become[^!]+!+",
+  "[^:]+ says: Become[^!]+!+",
+  --Debug messages
+  "Dbg:.*",
+} -- end ignore_messages
+
+-- NOTE: No configuration past this point.
+
+ATT_NEUTRAL = 1
+
+version = 0.15
+if crawl.version then
+  version = tonumber(crawl.version("major"))
+end
+los_range = version >= 0.17 and 7 or 8
+
+-- Wrapper of crawl.mpr() that prints text in white by default.
+if not mpr then
+  mpr = function (msg, color)
+    if not color then
+      color = "white"
+    end
+    crawl.mpr("<" .. color .. ">" .. msg .. "</" .. color .. ">")
+  end
+end
+
+function control(c)
+  return string.char(string.byte(c) - string.byte('a') + 1)
+end
+
+function delta_to_vi(dx, dy)
+  local d2v = {
+    [-1] = { [-1] = 'y', [0] = 'h', [1] = 'b'},
+    [0]  = { [-1] = 'k',            [1] = 'j'},
+    [1]  = { [-1] = 'u', [0] = 'l', [1] = 'n'},
+  } -- hack
+  return d2v[dx][dy]
+end
+
+function reset_rest()
+  if not rstate then
+    rstate = { }
+    rstate.set_slot = false
+    rstate.dir_x = nil
+    rstate.dir_y = nil
+  end
+  rstate.last_acted = nil
+  rstate.wielding = false
+  rstate.resting = false
+  rstate.num_turns = nil
+  rstate.rest_start = nil
+  rstate.start_hp = nil
+  rstate.start_status = { }
+  rstate.start_message = nil
+end
+
+function abort_rest(msg)
+  if msg then
+    mpr(msg, "lightred")
+  end
+  reset_rest()
+end
+
+function crawl_message(i)
+  local msg = crawl.messages(i):gsub("\n", "")
+  msg = msg:gsub("^%c* *", "")
+  msg = msg:gsub(" *%c*?$", "")
+  return msg
+end
+
+function record_status()
+  -- Record starting status to track any status changes.
+  rstate.start_status = { }
+  local status = you.status()
+  for s,_ in pairs(status_messages) do
+    if status:find(s) then
+      rstate.start_status[s] = true
+    end
+  end
+  rstate.start_message = get_last_message()
+end
+
+function in_water()
+  return view.feature_at(0, 0):find("water") and not you.status("flying")
+end
+
+function get_last_message()
+  local rest_type = get_rest_type()
+  local in_water = in_water()
+  -- Ignore these movement messages when walking.
+  local move_patterns = {"There is a[^%.]+here.",
+                         "Things that are here:.*",
+                         "Items here:.*"}
+  for i = 1,200 do
+    local msg = crawl_message(i)
+    for s,_ in pairs(rstate.start_status) do
+      if type(status_messages[s]) == "table" then
+        for _,p in ipairs(status_messages[s]) do
+          msg = msg:gsub(p, "")
+        end
+      else
+        msg = msg:gsub(status_messages[s], "")
+      end
+    end
+    if rest_type == "walk" then
+      for _,p in ipairs(move_patterns) do
+        -- Also remove any whitespace.
+        msg = msg:gsub(" *" .. p .. " *", "")
+      end
+    end
+    msg = msg:gsub(" *Beep! [^%.]+%. *", "")
+    for _,p in ipairs(ignore_messages) do
+      msg = msg:gsub(p, "")
+    end
+    if msg ~= "" then
+      return msg
+    end
+  end
+  return nil
+end
+
+function wield_swing_item()
+  rstate.wielding = true
+  rstate.last_acted = you.turns()
+  record_status()
+  crawl.sendkeys("w*" .. c_persist.swing_slot)
+end
+
+function find_swing_slot()
+  rstate.set_slot = true
+  if not automatic_slot then
+    c_persist.swing_slot = fallback_slot
+    return
+  end
+  c_persist.swing_slot = nil
+  for _,item in ipairs(items.inventory()) do
+    if item.class() == "Comestibles"
+      or item.class() == "Books"
+      or item.class() == "Wands"
+      or item.class() == "Missiles"
+      or item.class() == "Miscellaneous"
+      or (item.class() == "Hand Weapons"
+            and (item.subtype():find("bow")
+                 or item.subtype():find("sling")
+                 or item.subtype():find("crossbow")
+                 or item.subtype():find("blowgun"))) then
+        c_persist.swing_slot = items.index_to_letter(item.slot)
+        break
+    end
+  end
+  if not c_persist.swing_slot then
+    c_persist.swing_slot = fallback_slot
+  end
+end
+
+function swing_item_wielded()
+  local weapon = items.equipped_at("Weapon")
+  return weapon
+    and c_persist.swing_slot ~= nil
+    and weapon.slot == items.letter_to_index(c_persist.swing_slot)
+end
+
+function hostile_in_los()
+  local have_t1 = false
+  for x = -los_range,los_range do
+    for y = -los_range,los_range do
+      m = monster.get_monster_at(x, y)
+      if m and not m:is_safe() then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+function ponderous_level()
+  local level = 0
+  for _,item in ipairs(items.inventory()) do
+    local ego = item.ego()
+    if item.equipped and ego == "ponderousness" then
+      level = level + 1
+    end
+  end
+  return level
+end
+
+-- XXX See if we can move at least some of this into clua, since it's
+-- recreating play_movement_speed() and player_speed(). The aim is to determine
+-- if slow move is more regen-efficient and that the saving is worth the
+-- hassle, this calculates the minimum move speed, which can normally vary at
+-- random from randomized delay (e.g. water) and the many uses of
+-- div_rand_round().
+function player_move_speed()
+  if you.transform() == "tree" then
+    return 0
+  end
+
+  local in_water = in_water()
+  local walk_water = you.race() == "Merfolk"
+    or you.race() == "Octopode"
+    or you.race() == "Barachi"
+    or you.god() == "Beogh" and you.piety_rank() == 5
+    or you.transform == "ice"
+
+  -- This is player action speed, based on things that affect all actions.
+  local player_speed = 10
+  if you.status("slowed") then
+    player_speed = math.floor(player_speed * 3 / 2)
+  end
+  if you.status("berserking") and you.god() ~= "Cheibriados"
+  or  you.status("hasted") then
+    player_speed = math.floor(player_speed * 2 / 3)
+  end
+  if you.transform() == "statue" or you.status("petrifying") then
+    player_speed = math.floor(player_speed * 3 / 2)
+  end
+  if in_water and not walk_water then
+    player_speed = math.floor(player_speed * 13 / 10)
+  end
+
+  -- This is the base player movement speed given all things that affect only
+  -- movement.
+  local move_speed = 10
+  if you.transform() == "bat" then
+    move_speed = 5
+  elseif you.transform() == "pig" then
+    move_speed = 7
+  elseif you.transform() == "porcupine" or you.transform == "wisp" then
+    move_speed = 8
+  elseif in_water and (you.transform() == "hydra"
+                       or you.race() == "Merfolk") then
+    move_speed = 6
+  elseif you.race() == "Tengu" and you.status("flying") then
+    move_speed = 9
+  end
+
+  local boots = items.equipped_at("Boots")
+  local running_level = 0
+  if boots
+    and not boots.is_melded
+    and boots.ego()
+  and boots.ego() == "running" then
+    running_level = 1
+  end
+  move_speed = move_speed - running_level
+  move_speed = move_speed + ponderous_level()
+
+  if you.god() == "Cheibriados" then
+    -- Calculate this based on the minimum piety at the observed rank,
+    -- since we can't know the true piety level.
+    local piety_breaks = { 1, 30, 50, 75, 100, 120, 160 }
+    move_speed = move_speed + 2 +
+      math.floor(math.min(piety_breaks[you.piety_rank() + 1] / 20, 8))
+  end
+
+  if you.status("frozen") then
+    move_speed = move_speed + 4
+  end
+  if you.status("grasped by roots") then
+    move_speed = move_speed + 3
+  end
+
+  local speed_mut = you.mutation("speed")
+  local slow_mut = you.mutation("slowness")
+  if speed_mut > 0 then
+    move_speed = move_speed - speed_mut - 1
+  elseif slow_mut > 0 then
+    move_speed = math.floor(move_speed * (10 +  slow_mut * 2) / 10)
+  end
+
+  if not in_water and you.status("sluggish") then
+    if move_speed >= 8 then
+      move_speed = math.floor(move_speed * 3 / 2)
+    elseif move_speed == 7 then
+      move_speed = math.floor(7 * 6 / 5)
+    end
+  elseif not in_water and you.status("swift") then
+    move_speed = math.floor(move_speed * 3 / 4)
+  end
+  if move_speed < 6 then
+    move_speed = 6
+  end
+  return math.floor(player_speed * move_speed / 10)
+end
+
+function get_rest_type()
+  if you.race() == "Naga" and naga_always_walk
+    or you.god() == "Cheibriados"
+    or (not swing_item_wielded()
+        and not weapon_can_swap()) then
+    return "walk"
+  else
+    return "item"
+  end
+end
+
+function bad_to_act()
+  local hp, mhp = you.hp()
+  local rest_type = get_rest_type()
+  -- Stop multiple turn action when our hp recovers.
+  if rstate.rest_start and rstate.start_hp < mhp and hp == mhp then
+    mpr("HP restored.")
+    reset_rest()
+    return true
+  end
+  if you.status("manticore barbs") then
+    abort_rest("You must remove the manticore barbs first.")
+    return true
+  end
+  if you.hunger_name() == "fainting" or you.hunger_name() == "starving" then
+    abort_rest("You need to eat!")
+    return true
+  end
+  if hostile_in_los() then
+    if not rstate.rest_start then
+      abort_rest("You can't rest with a hostile monster in view!")
+    else
+      abort_rest()
+    end
+    return true
+  end
+
+  -- If any unrecognized message occurs, assume we need to stop resting.
+  if rstate.last_acted then
+    local msg = get_last_message()
+    if not msg then
+      abort_rest("Unable to find a previous message!")
+      return true
+    end
+    local wield_pt = "^ *" .. c_persist.swing_slot .. " - .+[%)}] *$"
+    local swing_pt = "^ *You swing at nothing%. *$"
+    local pattern = rstate.wielding and wield_pt or swing_pt
+    if (rest_type == "item" and not msg:find(pattern))
+    or rest_type == "walk" and msg ~= rstate.start_message then
+      abort_rest()
+      return true
+    end
+  end
+
+  if rest_type == "walk" and player_move_speed() <= 10 then
+    abort_rest("You cannot walk slowly right now!")
+    return true
+  end
+  return false
+end
+
+function feat_is_open(feat)
+  local fname = feat:lower()
+  -- Unique substrings that identify solid features.
+  local solid_features = {"wall", "grate", "tree", "mangrove",
+                          "endless_lava", "open_sea", "statue", "idol",
+                          "malign_gateway", "sealed_door", "closed_door",
+                          "runed_door", "explore_horizon"}
+
+  for i,p in ipairs(solid_features) do
+    if fname:find(p) then
+      return false
+    end
+  end
+  return true
+end
+
+function safe_walk_pos(x, y)
+  local in_water = in_water()
+  local pos_is_water = view.feature_at(x, y):find("water")
+  -- Don't allow walking out of water if we're in water
+  return (in_water and pos_is_water
+          -- Don't allow walking into water if we're not in it
+            or not in_water and not pos_is_water)
+  -- Require the destination to be safe.
+    and view.is_safe_square(x, y)
+end
+
+function safe_swing_pos(x, y)
+  return not monster.get_monster_at(x, y)
+    and feat_is_open(view.feature_at(x,y))
+end
+
+function safe_direction(x, y)
+  if get_rest_type() == "walk" then
+    return safe_walk_pos(x, y)
+  else
+    return safe_swing_pos(x, y)
+  end
+end
+
+function weapon_can_swap()
+  local weapon = items.equipped_at("Weapon")
+  if not weapon then
+    return true
+  end
+  if weapon.cursed then
+    return false
+  end
+
+  local ego = weapon.ego()
+  -- Some unrands like Plut. sword have no ego.
+  if ego
+    and (ego == "vampirism"
+         or ego == "distortion" and you.god() ~= "Lugonu") then
+      return false
+  end
+
+  if weapon.artefact then
+    local artp = weapon.artprops
+    return not (artp["*Contam"] or artp["*Curse"] or artp["*Drain"])
+  end
+  return true
+end
+
+function get_safe_direction()
+  local have_t1 = false
+  for x = -1,1 do
+    for y = -1,1 do
+      if (x ~= 0 or y ~= 0) and safe_direction(x, y) then
+        return x, y
+      end
+    end
+  end
+  return nil
+end
+
+function do_resting()
+  -- Our first turn of resting.
+  if not rstate.rest_start then
+    record_status()
+    rstate.rest_start = you.turns()
+    rstate.start_hp = you.hp()
+  end
+  rstate.last_acted = you.turns()
+  local rest_type = get_rest_type()
+  if rest_type == "item" then
+    crawl.sendkeys(control(delta_to_vi(rstate.dir_x, rstate.dir_y)))
+  else
+    local cur_x = rstate.dir_x
+    local cur_y = rstate.dir_y
+    -- Save the return direction as our next direction.
+    rstate.dir_x = -rstate.dir_x
+    rstate.dir_y = -rstate.dir_y
+    crawl.sendkeys(delta_to_vi(cur_x, cur_y))
+    crawl.delay(walk_delay)
+  end
+end
+
+function one_turn_rest()
+  rstate.resting = true
+  rstate.num_turns = 1
+end
+
+function start_resting()
+  rstate.resting = true
+  rstate.num_turns = num_rest_turns
+end
+
+function set_swing_slot()
+  crawl.formatted_mpr("Enter an slot letter for the swing item: ", "prompt")
+  local letter = crawl.c_input_line()
+  local index = items.letter_to_index(letter)
+  if not index or index < 0 then
+    mpr("Must be a letter (a-z or A-Z)!", "lightred")
+    return
+  end
+  c_persist.swing_slot = letter
+  rstate.set_slot = true
+  mpr("Set swing slot to " .. letter .. ".")
+end
+
+function speedrun_rest()
+  local rest_type = get_rest_type()
+  if rest_type == "item"
+    and (not c_persist.swing_slot
+         or you.turns() == 0 and not rstate.set_slot) then
+      find_swing_slot()
+  end
+
+  if not rstate.resting then
+    return
+  end
+
+  -- Only act once per turn.
+  if rstate.last_acted == you.turns() then
+    -- An error happened with the 'w' command
+    if rstate.wielding and not swing_item_wielded() then
+      abort_rest("Unable to wield swing item on slot " ..
+                   c_persist.swing_slot .. "!")
+    end
+    return
+  end
+
+  if rstate.last_acted and rstate.rest_start
+  and rstate.last_acted + 1 >= rstate.rest_start + rstate.num_turns then
+    reset_rest()
+    return
+  end
+
+  if bad_to_act() then
+    return
+  end
+
+  if rest_type == "item" and not swing_item_wielded() then
+    wield_swing_item()
+    return
+  end
+
+  rstate.wielding = false
+  if not rstate.dir_x
+  -- Don't try to reuse our position if we were walk resting and did
+  -- something inbetween our last rest.
+    or swing_type == "walk" and rstat.last_acted ~= you.turns() - 1
+  or not safe_direction(rstate.dir_x, rstate.dir_y) then
+    rstate.dir_x, rstate.dir_y = get_safe_direction()
+    if not rstate.dir_x then
+      abort_rest("No safe direction found!")
+      return
+    end
+  end
+  do_resting()
+end
+
+reset_rest()
+
+---------------------------
+---- End speedrun_rest ----
+---------------------------
+
+}
+
+#########
+#ALIASES#
+#########
+
+ae      := autopickup_exceptions
+ai      := autoinscribe
+as      := ability_slot
+item    := item_glyph
+is      := item_slot
+menu    := menu_colour
+more    := force_more_message
+ss      := spell_slot
+stop    := runrest_stop_message
+msc     := message_colour
+
+: if you.god() == "Sif Muna" then
+ability_menu = false
+: end
+
+: if you.god() == "Fedhas" then
+autoinscribe += fruit:!e
+: end
+
+: if you.god() == "Cheibriados" then
+force_more_message += comes? into view
+: end
+
+: if you.god() == "Zin" then
+ae += <potions? of ambro
+:else 
+ae += >potions? of ambro
+: end
+
+: if you.god() == "Trog" then
+ae += >potions? of brilliance
+ae += >potions? of berserk
+: end
+
+: if you.race() == "Tengu" then
+ae += >potions? of flight
+: end
+
+: if you.race() == "Spriggan" or you.race() == "Vine Stalker" then
+default_autopickup = false
+: else
+default_autopickup = true
+: end
+
+: if you.god() == "Nemelex Xobeh" then
+ae += <deck
+: end
+
+: if you.god() == "Gozag" then
+explore_auto_rest = false
+: end
+
+: if you.race() == "Vampire" then
+ae += <potions? of.*blood
+: end
+
+: if you.race() == "Ghoul" then
+chunks_autopickup = true
+: else
+chunks_autopickup = false
+: end
+
+: if (you.race() == "Ogre" or you.race() == "Troll") then
+ae += <large rock
+: end
+
+ai += bread ration:@e1
+ai += meat ration:@e2
+ai += blowgun:@w1
+ai += staff of energy:@w2, !a, !d
+ai += curing:@q1
+ai += potions of heal wounds:@q2, !q
+ai += potions of haste:@q3, !q
+ai += potion of blood:@q4
+ai += identify:@r1
+ai += remove curse:@r2
+ai += scrolls of teleportation:!r, @r3
+
+ai += distortion:!w
+ai += of faith:!P
+ai += staff of (conjuration|energy|power|wizardry|Wucad Mu):!a
+ai += rod of:!a
+ai += mutation:!q
+ai += potion berserk rage:!q
+ai += large rock:!d
+ai += throwing net: !d
+ai += scroll silence:!r
+
+
+ae += dangerous_item
+ae += wand of (confusion|disintegration|enslavement|fireball|flame)
+ae += wand of (frost|invisibility|magic darts|paralysis|polymorph)
+ae += wand of (random effects|slowing)
+ae += >scrolls? of (amn|vuln|noise)
+ae += >potions? of ligni
+ae += >ring of (protection from mag|mag|stealth|ice|fire|pos|wiz)
+ae += <deck
+ae += <blowgun
+ae += <throwing net
+ae += <(fan of gales|lamp of fire|phial of floods)
+ae += <phantom mirror
+ae += <box of beasts
+ae += <artefact
+ae += <needles of sleeping
+ae += <needles of paralysis
+ae += <javelins of penetration
+
+: if you.god() == "Nemelex Xobeh" then
+    auto_sacrifice = false
+: end
+
+as ^= Evoke Invis: i
+as ^= Turn Visibl: j
+as ^= Evoke Fligh: l
+as ^= Fly:         l
+as ^= Stop Flying: m
+as ^= Evoke Telep: t
+as ^= Spit:        q
+as ^= Breath:      q
+
+ss ^= Apportation: o
+ss ^= Blink:       d
+ss ^= Portal Proj: j
+ss ^= Warp Weapon: W
+ss ^= Passage of:  g
+ss ^= Phase Shift: p
+ss ^= ontrolled B: C
+ss ^= Control Tel: k
+
+ss ^= Song of Sla: y
+ss ^= Missiles:    f
+ss ^= Flight:      l
+ss ^= Regeneratio: R
+ss ^= Shroud of G: h
+ss ^= Spectral We: W
+ss ^= Ozocubu:     h
+ss ^= Haste:       H
+
+ss ^= Ensorcelled: z
+ss ^= Confuse:     x
+ss ^= Tukima's Da: t
+ss ^= Invisibilit: I
+ss ^= Enslavement: v
+ss ^= Dazzling Sp: q
+
+ss ^= Animate Ske: b
+ss ^= Sublimation: Z
+ss ^= Corpse Rot:  r
+ss ^= Control Und: U
+ss ^= Dispel Unde: u
+ss ^= Animate Dea: E
+ss ^= Vampiric Dr: v
+
+ss ^= Stone Skin:  s
+ss ^= Passwall:    c
+ss ^= Lee's Rapid: l
+ss ^= Statue Form: Y
+ss ^= Summon Butt: B
+ss ^= Aura of Abj: A
+ss ^= Summon Ligh: l
+ss ^= Conjure Fla: j
+ss ^= Mephitic Cl: m
+ss ^= Cure Poison: w
+
+is ^= bread ration:e
+is ^= ring of protection from fire:f
+is ^= ring of protection from cold:c
+is ^= ring of protection from magic:m
+is ^= ring of poison resistance:o
+is ^= ring of flight:l
+is ^= ring of see invisible:s
+is ^= ring of stealth:x
+is ^= ring of slaying:y
+is ^= ring of teleportation:t
+is ^= ring of invisibility:i
+is ^= amulet of resist mutation:j
+is ^= of resist corrosion:g
+is ^= amulet of regeneration:r
+is ^= blowgun:w
+is ^= throwing net:Z
+is ^= scroll of identify:R
+is ^= scroll of teleportation:T
+is ^= scroll of blinking:B
+is ^= scroll of magic map:M
+is ^= wand of heal:h
+is ^= wand of acid:A
+is ^= wand of ensl:E
+is ^= wand of iceb:I
+is ^= wand of ligh:L
+is ^= wand of para:P
+is ^= wand of conf:C
+is ^= potion of blood:q
+
+menu += cyan:.*brand weapon
+menu += cyan:.*enchant weapon
+menu += cyan:.*enchant armour
+menu += cyan:.*recharging
+menu += cyan:.*magic mapping
+menu += green:.*potions? of might
+menu += green:.*potions? of agility
+menu += green:.*potions? of brilliance
+menu += green:.*potions? of haste
+menu += green:.*potions? of resistance
+menu += green:.*potions? of berserk
+menu += cyan:wand of para
+menu += cyan:wand of conf
+menu += cyan:wand of poly
+menu += cyan:wand of ensl
+menu += cyan:wand of dis
+
+more += You are engulfed in seething chaos
+more += .* comes into view. It is wielding a .* of distortion
+more += .* comes into view. It is wielding a .* of chaos
+
+more += Found a staircase to the Ecumenical Temple
+more += You have reached level
+more += You fall through a shaft
+more += You enter a teleport trap
+more += You are suddenly yanked
+more += interdimensional caravan
+more += distant snort
+more += Found a gateway leading out of the Abyss
+more += Found .* abyssal rune of Zot
+more += Careful!
+more += You are starting to lose your buoyancy
+more += You miscast Flight
+more += filled with .* inner flame
+more += grabs you
+more += skill increases
+more += toss
+more += starts rolling
+more += looks more exp
+more += plume of calc
+more += vile air hits you
+more += engulfs you in water
+more += breathes miasma
+more += You feel your flesh start
+more += Found * staircase leading down
+more += You are engulfed in seething chaos
+more += You are slowing down
+more += fire storm spell
+more += Your guardian golem overheats
+
+more += wielding.* distortion.* comes? into view
+more += serpent.* comes? into view
+more += hydra.* comes? into view
+more += the .* comes? into view
+more += 's ghost.* comes? into view
+more += demonologist.* comes? into view
+more += fiend.* comes? into view
+more += tzitzi.* comes? into view
+more += pandemonium lord.* comes? into view
+more += cacodemon.* comes? into view
+more += neqoxec.* comes? into view
+more += wretched star.* comes? into view
+more += shining eye.* comes? into view
+more += electric eel.* comes? into view
+more += hellion.* comes? into view
+more += tormentor.* comes? into view
+more += orb.* of fire.* comes? into view
+
+more += 27-headed.*(comes? into view|opens the)
+more += Agnes.*(comes? into view|opens the)
+more += Aizul.*(comes? into view|opens the)
+more += Antaeus.*(comes? into view|opens the)
+more += Arachne.*(comes? into view|opens the)
+more += Asmodeus.*(comes? into view|opens the)
+more += Asterion.*(comes? into view|opens the)
+more += Azrael.*(comes? into view|opens the)
+more += Blork the orc.*(comes? into view|opens the)
+more += Boris.*(comes? into view|opens the)
+more += Cerebov.*(comes? into view|opens the)
+more += Crazy Yiuf.*(comes? into view|opens the)
+more += Dispater.*(comes? into view|opens the)
+more += Dissolution.*(comes? into view|opens the)
+more += Donald.*(comes? into view|opens the)
+more += Dowan.*(comes? into view|opens the)
+more += Duvessa.*(comes? into view|opens the)
+more += Edmund.*(comes? into view|opens the)
+more += Ereshkigal.*(comes? into view|opens the)
+more += Erica.*(comes? into view|opens the)
+more += Erolcha.*(comes? into view|opens the)
+more += Eustachio.*(comes? into view|opens the)
+more += Fannar.*(comes? into view|opens the)
+more += Frances.*(comes? into view|opens the)
+more += Francis.*(comes? into view|opens the)
+more += Frederick.*(comes? into view|opens the)
+more += Gastronok.*(comes? into view|opens the)
+more += Geryon.*(comes? into view|opens the)
+more += Gloorx Vloq.*(comes? into view|opens the)
+more += Grinder.*(comes? into view|opens the)
+more += Grum.*(comes? into view|opens the)
+more += Harold.*(comes? into view|opens the)
+more += Ignacio.*(comes? into view|opens the)
+more += Ijyb.*(comes? into view|opens the)
+more += Ilsuiw.*(comes? into view|opens the)
+more += Jessica.*(comes? into view|opens the)
+more += Jorgrun.*(comes? into view|opens the)
+more += Jory.*(comes? into view|opens the)
+more += Joseph.*(comes? into view|opens the)
+more += Josephine.*(comes? into view|opens the)
+more += Jozef.*(comes? into view|opens the)
+more += Khufu.*(comes? into view|opens the)
+more += Kirke.*(comes? into view|opens the)
+more += Lamia.*(comes? into view|opens the)
+more += Lom Lobon.*(comes? into view|opens the)
+more += Louise.*(comes? into view|opens the)
+more += Mara.*(comes? into view|opens the)
+more += Margery.*(comes? into view|opens the)
+more += Maud.*(comes? into view|opens the)
+more += Maurice.*(comes? into view|opens the)
+more += Menkaure.*(comes? into view|opens the)
+more += Mennas.*(comes? into view|opens the)
+more += Mnoleg.*(comes? into view|opens the)
+more += Murray.*(comes? into view|opens the)
+more += Natasha.*(comes? into view|opens the)
+more += Nergalle.*(comes? into view|opens the)
+more += Nessos.*(comes? into view|opens the)
+more += Nikola.*(comes? into view|opens the)
+more += Norris.*(comes? into view|opens the)
+more += Pikel.*(comes? into view|opens the)
+more += Polyphemus.*(comes? into view|opens the)
+more += Prince Ribbit.*(comes? into view|opens the)
+more += Psyche.*(comes? into view|opens the)
+more += Purgy.*(comes? into view|opens the)
+more += Roxanne.*(comes? into view|opens the)
+more += Rupert.*(comes? into view|opens the)
+more += Saint Roka.*(comes? into view|opens the)
+more += Sigmund.*(comes? into view|opens the)
+more += Snorg.*(comes? into view|opens the)
+more += Sojobo.*(comes? into view|opens the)
+more += Sonja.*(comes? into view|opens the)
+more += Terence.*(comes? into view|opens the)
+more += The Lernaean hydra.*(comes? into view|opens the)
+more += The royal jelly.*(comes? into view|opens the)
+more += The Serpent of Hell.*(comes? into view|opens the)
+more += Tiamat.*(comes? into view|opens the)
+more += Urug.*(comes? into view|opens the)
+more += Vashnia.*(comes? into view|opens the)
+more += Wiglaf.*(comes? into view|opens the)
+more += Xtahua.*(comes? into view|opens the)
+
+msc += red: Your transformation is almost over
+msc += red: No target in view
+msc += red: Partly explored, can't reach some places
+msc += green: Done exploring
+msc += cyan: You have reached level
+msc ^= lightgreen:Found
+msc ^= green:more experienced
+msc ^= magenta:sizzling sound
+msc ^= red:you shout at
+
+runrest_ignore_message += blood rots? away
+runrest_ignore_message += Your icy armour
+runrest_ignore_message += Your skin is crawling a little less
+runrest_ignore_message += infusion is running out
+runrest_ignore_message += shroud begins to fray
+runrest_ignore_message += You feel.*sick
+
+stop += Your transformation is almost over
